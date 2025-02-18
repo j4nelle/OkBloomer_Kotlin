@@ -13,6 +13,9 @@
         android:theme="@style/Theme.OkBloomer_Kotlin"
         tools:targetApi="31">
         <activity
+            android:name=".ui.theme.MyGarden_activity"
+            android:exported="false" />
+        <activity
             android:name=".ui.theme.Mainscreen"
             android:exported="false"
             android:theme="@style/Theme.OkBloomer_Kotlin" />
