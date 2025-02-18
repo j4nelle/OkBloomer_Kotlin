@@ -13,6 +13,9 @@
         android:theme="@style/Theme.OkBloomer_Kotlin"
         tools:targetApi="31">
         <activity
+            android:name=".Adding_Plant"
+            android:exported="false" />
+        <activity
             android:name=".ui.theme.MyGarden_activity"
             android:exported="false" />
         <activity
