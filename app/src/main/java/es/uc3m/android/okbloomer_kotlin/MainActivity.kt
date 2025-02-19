@@ -66,7 +66,7 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
 
         Button(
             onClick = {
-                val intent = Intent(context, MyGarden_activity::class.java)
+                val intent = Intent(context, Adding_Plant_question::class.java)
                 launcher.launch(intent)
                 context.startActivity (intent) }
             )
