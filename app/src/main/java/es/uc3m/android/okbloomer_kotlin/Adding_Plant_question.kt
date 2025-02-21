@@ -42,13 +42,12 @@ fun AddingPreview(modifier : Modifier = Modifier){
         val data = result.data
         // Handle the data accordingly
     }
-
-
+        //test
 
     Column {
 
     Button(onClick = {/*make the link to google maps or another gps service (going directly to MAPS ?)*/}) {
-    Text("I want to buy a new plant")}
+    Text("I want to buy a new plant !")}
 
     Button(onClick = {
         val intent = Intent(context, Adding_Plant_activity::class.java)

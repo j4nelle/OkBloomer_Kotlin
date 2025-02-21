@@ -71,6 +71,5 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
         {
             Text("Add a new plant")
         }
-
     }
 }

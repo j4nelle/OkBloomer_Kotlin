@@ -6,5 +6,4 @@ class Plant_class {
     var nickname: String = ""
     var specie: String = ""
 
-
 }

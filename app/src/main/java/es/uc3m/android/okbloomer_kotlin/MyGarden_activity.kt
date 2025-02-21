@@ -55,6 +55,7 @@ fun Gardenlist(modifier : Modifier = Modifier){
         {
             Text("Plant 1")
         }
+
         Button(onClick = {/*go to the activity displaying the plant infos, instance of the class plant*/})
         {
             Text("Plant 2")
