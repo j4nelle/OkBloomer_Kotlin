@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,27 +51,28 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
     }
 
 
-    Column {
-        Text(
-            text = "Greetings user !",
-            modifier = modifier
-        )
-        Button(onClick = { // Create an intent to start the activity
-            val intent = Intent(context, MyGarden_activity::class.java)
-            // Start the activity
-            context.startActivity (intent) })
-        {
-            Text("Go to my garden")
-        }
-
-        Button(
-            onClick = {
-                val intent = Intent(context, Adding_Plant_question::class.java)
-                context.startActivity (intent) }
+        Column(horizontalAlignment = Alignment.CenterHorizontally)
+    {
+            Text(
+                text = "Greetings user !",
+                modifier = modifier
             )
-        {
-            Text("Add a new plant")
-        }
+            Button(onClick = { // Create an intent to start the activity
+                val intent = Intent(context, MyGarden_activity::class.java)
+                // Start the activity
+                context.startActivity (intent) })
+            {
+                Text("Go to my garden")
+            }
 
+            Button(
+                onClick = {
+                    val intent = Intent(context, Adding_Plant_question::class.java)
+                    context.startActivity (intent) }
+            )
+            {
+                Text("Add a new plant")
+            }
+
+        }
     }
-}
