@@ -7,7 +7,4 @@ class Plant_class {
     var specie: String = ""
 
 
-
-
-
 }
