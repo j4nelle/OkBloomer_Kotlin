@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import es.uc3m.android.okbloomer_kotlin.ui.theme.MyGarden_activity
+
 
 class Adding_Plant_activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,7 +103,6 @@ fun AddingPreview_plant(modifier : Modifier = Modifier) {
             // will have to switch to a text_button variable that says "added" when you click it
         }
     }
-
 
 
 

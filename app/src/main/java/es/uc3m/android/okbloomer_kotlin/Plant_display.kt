@@ -41,8 +41,4 @@ class Plant_display : ComponentActivity() {
 @Composable
 fun Plant_display_function(modifier : Modifier = Modifier){
 
-
-
-
-
 }
