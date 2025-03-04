@@ -2,6 +2,7 @@ package es.uc3m.android.okbloomer_kotlin.datas
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
@@ -36,9 +37,13 @@ class Plant_data(context: Context)
         } else {
             Log.d("DB_SUCCESS", "Insertion réussie, id: $autonumeric")
         }
-
-
         return autonumeric
+    }
+
+    fun plantSelect(plant_data : Plant_data): Cursor{
+        val db = plant_data.readableDatabase
+        val sql = "SELECT * from mygarden ORDER BY idplant DESC" //selects every object from the database mygarden
+        return db.rawQuery(sql, null)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

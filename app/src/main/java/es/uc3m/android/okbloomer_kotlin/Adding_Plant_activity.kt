@@ -105,11 +105,12 @@ class Adding_Plant_activity : ComponentActivity() {
     private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String) {
         val plant_data = Plant_data(this)
         val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1)
+
         //creating a message to make sure the data is saved
+        Toast.makeText(this, "id :"+autonumeric, Toast.LENGTH_SHORT).show()
 
-
-        Toast.makeText(this, "id :" + autonumeric, Toast.LENGTH_SHORT).show()
-
+        //making sure we start the garden activity to display the new plants once it's added
+        startActivity(Intent(this, MyGarden_activity::class.java))
 
     }
 }
