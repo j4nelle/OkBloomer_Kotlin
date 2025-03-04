@@ -32,3 +32,39 @@ import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 class Plant_display : ComponentActivity() {}
 
 
+
+/* code previously used to get plant infos and display it as text zones
+private fun draw(plantList: ArrayList<HashMap<String, String>>) { // function that "draws" the button of the different plants
+    setContent{
+        Box(modifier = Modifier.fillMaxSize()){
+            LazyColumn (
+                content = {
+                    items(items = plantList, itemContent = {
+
+                        Column (
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        )
+                        {
+                            Button(onClick ={}
+                            ) { }
+
+                        }
+
+                        Text(text = it.get("idplant").toString())
+                        Text(text = it.get("plant_nickname").toString())
+                        Text(text = it.get("plant_specie").toString())
+                        Text(text = it.get("watering_frequency").toString())
+                        Text(text = it.get("typo").toString())
+                    })
+                }
+            )//we use a lazy column so that the list is scrollable
+        }
+    }
+}
+}
+*/
+
+
+

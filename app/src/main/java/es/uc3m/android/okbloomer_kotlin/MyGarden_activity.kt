@@ -1,5 +1,7 @@
 package es.uc3m.android.okbloomer_kotlin
 
+import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,6 +22,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,66 +46,67 @@ import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 class MyGarden_activity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        //get the information of the database
-        readData()
-    }
-
-private fun readData() {
-    val plant_list = ArrayList<HashMap<String, String>>()
-    val plant_data = Plant_data(this)
-    val cursor : Cursor = plant_data.plantSelect(plant_data)
-
-    if (cursor.moveToFirst()){
-        do {
-            //getting each info for each variable
-            val idplant = cursor.getString(cursor.getColumnIndexOrThrow("idplant"))
-            val plant_nickname = cursor.getString(cursor.getColumnIndexOrThrow("plant_nickname"))
-            val plant_specie = cursor.getString(cursor.getColumnIndexOrThrow("plant_specie"))
-            val watering_frequency = cursor.getString(cursor.getColumnIndexOrThrow("watering_frequency"))
-            val typo = cursor.getString(cursor.getColumnIndexOrThrow("typo"))
-
-            //putting it as a list:
-            val map = HashMap<String, String>()
-            map.put("idplant", idplant)
-            map.put("plant_nickname", plant_nickname)
-            map.put("plant_specie", plant_specie)
-            map.put("watering_frequency", watering_frequency)
-            map.put("typo", typo)
-
-            plant_list.add(map)
-        }while (cursor.moveToNext())
-        draw(plant_list)
-    }
-}
-
-private fun draw(plantList: ArrayList<HashMap<String, String>>) { // function that "draws" the button of the different plants
-    setContent{
-        Box(modifier = Modifier.fillMaxSize()){
-            LazyColumn (
-                content = {
-                    items(items = plantList, itemContent = {
-
-                        Column (
-                            modifier = Modifier.
-                            fillMaxWidth()
-                                .padding(4.dp)
-                                .border(width = 1.dp, color = Color.Green, shape = RectangleShape)
-                                .padding(24.dp)
-                        ) {}
-
-                        Text(text = it.get("idplant").toString())
-                        Text(text = it.get("plant_nickname").toString())
-                        Text(text = it.get("plant_specie").toString())
-                        Text(text = it.get("watering_frequency").toString())
-                        Text(text = it.get("typo").toString())
-                    })
-                }
-            )//we use a lazy column so that the list is scrollable
+        setContent {
+            val context = this
+            val plantList = remember { mutableStateListOf<HashMap<String,String>>() }
+            // Load data whenComposable is created
+            LaunchedEffect(Unit) {
+                val data = readData(context)
+                plantList.clear()
+                plantList.addAll(data)
+            }
+            Displayingplants(plantList)
         }
     }
-
 }
+
+
+private fun readData(context : Context): List<HashMap<String,String>>{
+    val plantList = mutableListOf<HashMap<String, String>>()
+    val plant_data = Plant_data(context)
+    val cursor: Cursor = plant_data.plantSelect(plant_data)
+
+    if (cursor.moveToFirst()) {
+        do {
+            val map = hashMapOf(
+                "idplant" to cursor.getString(cursor.getColumnIndexOrThrow("idplant")),
+                "plant_nickname" to cursor.getString(cursor.getColumnIndexOrThrow("plant_nickname")),
+                "plant_specie" to cursor.getString(cursor.getColumnIndexOrThrow("plant_specie")),
+                "watering_frequency" to cursor.getString(cursor.getColumnIndexOrThrow("watering_frequency")),
+                "typo" to cursor.getString(cursor.getColumnIndexOrThrow("typo"))
+            )
+            plantList.add(map)
+        } while (cursor.moveToNext())
+    }
+    cursor.close()
+    return plantList
+}
+
+
+@Composable
+fun Displayingplants(plantList: List<HashMap<String, String>>){
+    Box(modifier = Modifier.fillMaxSize()){
+        LazyColumn {
+            items(plantList){ plant -> PlantItem(plant) }
+        }
+    }
+}
+
+
+//single plant item as a composable
+@Composable
+fun PlantItem(plant: HashMap<String, String>) {
+    val context = LocalContext.current
+    Column (modifier = Modifier.fillMaxWidth()
+        .padding(8.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Button(onClick = {
+            val intent = Intent(context, Plant_display::class.java)
+            context.startActivity(intent)
+        }) { Text("view plant") }// change the text for it to display the plant's nickname
+    }
 
 }
 
