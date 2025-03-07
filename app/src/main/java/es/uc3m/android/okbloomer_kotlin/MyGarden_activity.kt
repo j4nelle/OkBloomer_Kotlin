@@ -60,7 +60,6 @@ class MyGarden_activity: ComponentActivity() {
     }
 }
 
-
 private fun readData(context : Context): List<HashMap<String,String>>{
     val plantList = mutableListOf<HashMap<String, String>>()
     val plant_data = Plant_data(context)
@@ -81,7 +80,6 @@ private fun readData(context : Context): List<HashMap<String,String>>{
     cursor.close()
     return plantList
 }
-
 
 @Composable
 fun Displayingplants(plantList: List<HashMap<String, String>>){
