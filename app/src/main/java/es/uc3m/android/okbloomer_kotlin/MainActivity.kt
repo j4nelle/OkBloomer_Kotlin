@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import es.uc3m.android.okbloomer_kotlin.ui.theme.MyGarden_activity
+import es.uc3m.android.okbloomer_kotlin.MyGarden_activity
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 
 class MainActivity : ComponentActivity() {
