@@ -22,12 +22,9 @@
             android:name=".Adding_Plant_question"
             android:exported="false" />
         <activity
-            android:name=".ui.theme.MyGarden_activity"
+            android:name=".MyGarden_activity"
             android:exported="false" />
-        <activity
-            android:name=".ui.theme.Mainscreen"
-            android:exported="false"
-            android:theme="@style/Theme.OkBloomer_Kotlin" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
