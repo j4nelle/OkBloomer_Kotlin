@@ -40,6 +40,21 @@ class Plant_data(context: Context)
         return autonumeric
     }
 
+    fun deleting_a_plant(idplant : String , plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int){
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put("idplant", idplant)
+            put("plant_nickname",plant_nickname)
+            put("plant_specie", plant_specie)
+            put("watering_frequency", watering_frequency)
+            put("typo", typo)
+        }
+
+        val autonumeric = db.delete("mygarden",  idplant  + "=", arrayOf(idplant))
+        db.close()
+
+    }
+
     fun plantSelect(plant_data : Plant_data): Cursor{
         val db = plant_data.readableDatabase
         val sql = "SELECT * from mygarden ORDER BY idplant DESC" //selects every object from the database mygarden

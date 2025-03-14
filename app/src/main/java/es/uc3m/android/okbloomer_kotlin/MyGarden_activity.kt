@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +61,8 @@ class MyGarden_activity: ComponentActivity() {
     }
 }
 
-private fun readData(context : Context): List<HashMap<String,String>>{
+public fun readData(context : Context): List<HashMap<String,String>>{
+        // function that get the data from the database
     val plantList = mutableListOf<HashMap<String, String>>()
     val plant_data = Plant_data(context)
     val cursor: Cursor = plant_data.plantSelect(plant_data)
@@ -83,6 +85,7 @@ private fun readData(context : Context): List<HashMap<String,String>>{
 
 @Composable
 fun Displayingplants(plantList: List<HashMap<String, String>>){
+    //function that display the plants in the garden
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn {
             items(plantList){ plant -> PlantItem(plant) }
@@ -90,58 +93,34 @@ fun Displayingplants(plantList: List<HashMap<String, String>>){
     }
 }
 
-
 //single plant item as a composable
 
 @Composable
 fun PlantItem(plant: HashMap<String, String>) {
     val context = LocalContext.current
+    val plantID = plant["idplant"]
+    val plant_nickname = plant["plant_nickname"]
+    val plant_specie = plant["plant_specie"]
+    val watering_frequency = plant["watering_frequency"]
+    val typo = plant["typo"]
+
+
     Column (modifier = Modifier.fillMaxWidth()
         .padding(8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Button(onClick = {
-            val intent = Intent(context, Plant_display::class.java)
+            val intent = Intent(context, Plant_display::class.java).apply {
+                putExtra( plant.get("plant_id"), plantID)
+                putExtra(plant.get("plant_nickname"), plant_nickname)
+                putExtra(plant.get("plant_specie"), plant_specie)
+                putExtra(plant.get("watering_frequency"), watering_frequency)
+                putExtra(plant.get("typo"), typo)
+            }
             context.startActivity(intent)
         }) { Text(text = plant.get("plant_nickname").toString()) }// change the text for it to display the plant's nickname
     }
 
 }
-
-
-/*
-private fun draw(plantList: ArrayList<HashMap<String, String>>) { // function that "draws" the button of the different plants
-    setContent{
-        Box(modifier = Modifier.fillMaxSize()){
-            LazyColumn (
-                content = {
-                    items(items = plantList, itemContent = {
-
-                        Column (
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        )
-                        {
-                            Button(onClick ={}
-                            ) { }
-
-                        }
-
-                        Text(text = it.get("idplant").toString())
-                        Text(text = it.get("plant_nickname").toString())
-                        Text(text = it.get("plant_specie").toString())
-                        Text(text = it.get("watering_frequency").toString())
-                        Text(text = it.get("typo").toString())
-                    })
-                }
-            )//we use a lazy column so that the list is scrollable
-        }
-    }
-}
-}
-*/
-
-
 
