@@ -33,8 +33,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview(modifier : Modifier = Modifier) {
@@ -58,7 +56,7 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
         )
     {
             Text(
-                text = "Greetings user !",
+                text = "Welcome Back !",
                 modifier = modifier
             )
             Button(onClick = { // Create an intent to start the activity
