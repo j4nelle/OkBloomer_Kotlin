@@ -46,7 +46,7 @@ class Adding_Plant_question : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun AddingPreview(modifier : Modifier = Modifier){
+fun AddingPreview(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     // Create a launcher for starting the activity
     val launcher = rememberLauncherForActivityResult(
