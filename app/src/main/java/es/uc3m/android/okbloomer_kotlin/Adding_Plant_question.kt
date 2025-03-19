@@ -74,7 +74,14 @@ fun AddingPreview(modifier : Modifier = Modifier){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Button(onClick = {/*make the link to google maps or another gps service (going directly to MAPS ?)*/}
+        Button(
+            onClick = {/*make the link to google maps or another gps service (going directly to MAPS ?)*/
+        },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+        modifier = Modifier
+            .fillMaxWidth(0.7f)
+            .height(56.dp)
+            .clip(RoundedCornerShape(12.dp))
         ) {
             Text("I want to buy a new plant", fontSize = 18.sp)
         }

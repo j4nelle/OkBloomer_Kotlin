@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -86,10 +87,19 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
             Button(onClick = { // Create an intent to start the activity
                 val intent = Intent(context, MyGarden_activity::class.java)
                 // Start the activity
-                context.startActivity (intent) })
+                context.startActivity (intent) }
+                ,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
             {
-                Text("Go to my garden")
+                Text("Go to my garden", fontSize = 18.sp)
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = {
