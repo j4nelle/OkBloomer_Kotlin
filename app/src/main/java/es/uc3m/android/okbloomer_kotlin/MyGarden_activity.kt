@@ -10,16 +10,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
@@ -57,7 +62,9 @@ class MyGarden_activity: ComponentActivity() {
                 plantList.clear()
                 plantList.addAll(data)
             }
-            Displayingplants(plantList)
+            OkBloomer_KotlinTheme {
+                Displayingplants(plantList)
+            }
         }
     }
 }
@@ -87,8 +94,28 @@ fun readData(context : Context): List<HashMap<String,String>>{
 @Composable
 fun Displayingplants(plantList: List<HashMap<String, String>>){
     //function that display the plants in the garden
-    Box(modifier = Modifier.fillMaxSize()){
-        LazyColumn {
+
+    //changing the color values
+    val green = Color(0xFF810C784)
+    val red = Color(0xD9EF5350)
+
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ){
+        Image(
+            painter = painterResource(id = R.drawable.background2),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        LazyColumn (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             items(plantList){ plant -> PlantItem(plant)
             }
         }
@@ -122,8 +149,10 @@ fun PlantItem(plant: HashMap<String, String>) {
                 putExtra(plant.get("typo"), typo)
             }
             context.startActivity(intent)
-        }) { Text(text = plant.get("plant_nickname").toString()) }// change the text for it to display the plant's nickname
+        }) {
+            Text(text = plant.get("plant_nickname").toString())
+        }// change the text for it to display the plant's nickname
+        Spacer(modifier = Modifier.height(12.dp))
     }
-
 }
 
