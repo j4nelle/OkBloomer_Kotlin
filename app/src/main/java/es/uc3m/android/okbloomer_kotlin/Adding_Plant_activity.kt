@@ -6,10 +6,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
@@ -26,8 +32,12 @@ import androidx.core.view.WindowInsetsCompat
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
@@ -43,68 +53,91 @@ class Adding_Plant_activity : ComponentActivity() {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun AddingPreview_plant(modifier : Modifier = Modifier) {
-    //function that gives the option of entering plant infos (should lead to the creation of an instance of Plant)
+fun AddingPreview_plant(modifier: Modifier = Modifier) {
+    // Variables de estado
+    var plantName by rememberSaveable { mutableStateOf("") }
+    var species by rememberSaveable { mutableStateOf("") }
+    var wateringFrequency by rememberSaveable { mutableStateOf("") }
 
-    // Initiation of the variables
-    var plant_name by rememberSaveable{ mutableStateOf("") }
-    var specie by rememberSaveable { mutableStateOf("") }
-    var watering_frequency by rememberSaveable { mutableStateOf("") }
+    // Contexto para iniciar actividades
+    val context = LocalContext.current
 
-    //context variable
-    var context = LocalContext.current
-
-    Column (
-    modifier = Modifier.fillMaxSize(),
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
-    )
-
-    {
-        Text(fontSize = 22.sp, text ="Describe your new plant :", color = Color.Blue)
-        TextField(
-            value = plant_name,
-            onValueChange = { plant_name = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text("Enter your plant's nickname")
-            }
+    Box(modifier = modifier.fillMaxSize()) {
+        // Imagen de fondo
+        Image(
+            painter = painterResource(id = R.drawable.background), // Asegúrate de tener una imagen en resources
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
 
-        TextField(
-            value = specie,
-            onValueChange = { specie = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text("Enter your plant's specie")
-            }
-        )
-
-        TextField(
-            value = watering_frequency,
-            onValueChange = { watering_frequency = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text("What is the watering frequency ?")
-            }
-        )
-
-        Button(
-            onClick ={
-                val intent = Intent(context, MyGarden_activity::class.java)
-                context.startActivity(intent)
-            }
-
-            //colors =
+        // Contenido principal
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        Text("Add to Garden")
-            // will have to switch to a text_button variable that says "added" when you click it
+            Text(
+                fontSize = 24.sp,
+                text = "Describe your new plant:",
+                color = Color(0xFF4CAF50),
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Campo para el nombre de la planta
+            TextField(
+                value = plantName,
+                onValueChange = { plantName = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                placeholder = { Text("Enter your plant's nickname") }
+            )
+
+            // Campo para la especie
+            TextField(
+                value = species,
+                onValueChange = { species = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                placeholder = { Text("Enter your plant's species") }
+            )
+
+            // Campo para la frecuencia de riego
+            TextField(
+                value = wateringFrequency,
+                onValueChange = { wateringFrequency = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                placeholder = { Text("What is the watering frequency?") }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Botón para añadir la planta al jardín
+            Button(
+                onClick = {
+                    val intent = Intent(context, MyGarden_activity::class.java)
+                    context.startActivity(intent)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF4CAF50),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Add to Garden", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
-
-
-
-
 }
