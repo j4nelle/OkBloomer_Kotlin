@@ -55,24 +55,22 @@ class Adding_Plant_activity : ComponentActivity() {
 
 @Composable
 fun AddingPreview_plant(modifier: Modifier = Modifier) {
-    // Variables de estado
+
     var plantName by rememberSaveable { mutableStateOf("") }
     var species by rememberSaveable { mutableStateOf("") }
     var wateringFrequency by rememberSaveable { mutableStateOf("") }
 
-    // Contexto para iniciar actividades
     val context = LocalContext.current
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Imagen de fondo
+
         Image(
-            painter = painterResource(id = R.drawable.background), // Asegúrate de tener una imagen en resources
+            painter = painterResource(id = R.drawable.background),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        // Contenido principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,7 +87,6 @@ fun AddingPreview_plant(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Campo para el nombre de la planta
             TextField(
                 value = plantName,
                 onValueChange = { plantName = it },
@@ -99,7 +96,6 @@ fun AddingPreview_plant(modifier: Modifier = Modifier) {
                 placeholder = { Text("Enter your plant's nickname") }
             )
 
-            // Campo para la especie
             TextField(
                 value = species,
                 onValueChange = { species = it },
@@ -109,7 +105,6 @@ fun AddingPreview_plant(modifier: Modifier = Modifier) {
                 placeholder = { Text("Enter your plant's species") }
             )
 
-            // Campo para la frecuencia de riego
             TextField(
                 value = wateringFrequency,
                 onValueChange = { wateringFrequency = it },
@@ -121,7 +116,6 @@ fun AddingPreview_plant(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Botón para añadir la planta al jardín
             Button(
                 onClick = {
                     val intent = Intent(context, MyGarden_activity::class.java)
