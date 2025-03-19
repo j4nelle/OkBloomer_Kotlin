@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,12 +46,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview(modifier : Modifier = Modifier) {
-
+fun GreetingPreview(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     // Create a launcher for starting the activity
@@ -79,7 +77,7 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Welcome back !",
+                text = "Welcome Back!",
                 fontSize = 24.sp,
                 color = Color.White
             )
@@ -114,6 +112,7 @@ fun GreetingPreview(modifier : Modifier = Modifier) {
             ) {
                 Text(text = "Add a new plant", fontSize = 18.sp)
             }
+
         }
 }
 

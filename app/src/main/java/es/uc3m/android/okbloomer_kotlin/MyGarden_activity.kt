@@ -44,6 +44,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import es.uc3m.android.okbloomer_kotlin.GreetingPreview
@@ -51,9 +52,10 @@ import es.uc3m.android.okbloomer_kotlin.R
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 
-class MyGarden_activity: ComponentActivity() {
+class MyGarden_activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             val context = this
             val plantList = remember { mutableStateListOf<HashMap<String,String>>() }
