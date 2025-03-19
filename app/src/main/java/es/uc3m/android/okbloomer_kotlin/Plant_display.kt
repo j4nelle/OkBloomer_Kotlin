@@ -1,9 +1,12 @@
 package es.uc3m.android.okbloomer_kotlin
 
+import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Paint.Align
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -40,85 +43,77 @@ class Plant_display : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-    setContent {
-        val plantID = intent.getStringExtra("plant_id")
-        val plant_nickname = intent.getStringExtra("plant_nickname")
-        val plant_specie = intent.getStringExtra("plant_specie")
-        val watering_frequency = intent.getStringExtra("watering_frequency")
-        val typo = intent.getStringExtra("typo")
+        //get the plant id to display it
+        val plantID = intent.getStringExtra("idplant")
 
-        Displaying_info(plantID.toString(), plant_nickname.toString(), plant_specie.toString(), watering_frequency.toString(), typo.toString())
-        Displaying_buttons()
-    }
+        // get the rest of the info directly from the database
+        val plantData = Plant_data(this)
+
+        var plant_nickname = "Unknown"
+        var plant_specie = "Unknown"
+        var watering_frequency = "Unknown"
+        var typo = "Unknown"
+
+        // reading the database :
+        val cursor = plantData.readableDatabase.rawQuery(
+            "SELECT * FROM mygarden WHERE idplant = ?", arrayOf(plantID ?:"-1")
+        )
+        if (cursor.moveToFirst()) {
+            plant_nickname = cursor.getString(cursor.getColumnIndexOrThrow("plant_nickname"))
+            plant_specie = cursor.getString(cursor.getColumnIndexOrThrow("plant_specie"))
+            watering_frequency = cursor.getString(cursor.getColumnIndexOrThrow("watering_frequency"))
+            typo = cursor.getString(cursor.getColumnIndexOrThrow("typo"))
+
+        }
+        cursor.close()
+        setContent {
+        Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, typo)
+        }
 
     }
 }
 
 @Composable
 fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String, wateringFrequency: String, typo: String) {
-Box(modifier = Modifier.fillMaxSize()){
-    Column (modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.End) {
-        Text( text = "Nickname :" + plantNickname)
-        Text(text = "Specie :" + plantSpecie)
-        Text(text = "Watering frequency :" + wateringFrequency)
-    }
+    var context = LocalContext.current
 
-}
-
-}
-
-@Composable
-fun Displaying_buttons(){
     Box(modifier = Modifier.fillMaxSize()){
-        //watering button
-        Button() {Text(text = "watering button") }
+    Column (modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start) {
+        Text(text = "Nickname : $plantNickname")
+        Text(text = "Specie : $plantSpecie")
+        Text(text = "Watering frequency :$wateringFrequency")
 
         //delete button
-        Button(onClick = delete_data() ){ Text(text = "Delete plant")}
+        Button(onClick = {delete_data(plantID = plantID, context)} )
+        { Text(text = "Delete plant")}
 
+        //watering button
+        //Button() {Text(text = "watering button") }
     }
 
-
+}
 }
 
-fun delete_data(): () -> Unit {
-    val autonumeric =
-}
 
-/* code previously used to get plant infos and display it as text zones
-private fun draw(plantList: ArrayList<HashMap<String, String>>) { // function that "draws" the button of the different plants
-    setContent{
-        Box(modifier = Modifier.fillMaxSize()){
-            LazyColumn (
-                content = {
-                    items(items = plantList, itemContent = {
+fun delete_data(plantID: String, context: Context) {
+    val plant_data = Plant_data(context)
+    val success = plant_data.deleting_a_plant(plantID)
 
-                        Column (
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        )
-                        {
-                            Button(onClick ={}
-                            ) { }
+    if (success) {
+        // Message to see if the deletion worked :
+        Toast.makeText(context, "plant deleted", Toast.LENGTH_SHORT).show()
 
-                        }
+        //getting back to the garden after deletion
+        val intent = Intent(context, MyGarden_activity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        context.startActivity(intent)
 
-                        Text(text = it.get("idplant").toString())
-                        Text(text = it.get("plant_nickname").toString())
-                        Text(text = it.get("plant_specie").toString())
-                        Text(text = it.get("watering_frequency").toString())
-                        Text(text = it.get("typo").toString())
-                    })
-                }
-            )//we use a lazy column so that the list is scrollable
-        }
+    }
+    else{
+        //Message if the deletion failed
+        Toast.makeText(context, "deletion failed", Toast.LENGTH_SHORT).show()
     }
 }
-}
-*/
-
-
 

@@ -50,6 +50,7 @@ class MyGarden_activity: ComponentActivity() {
         setContent {
             val context = this
             val plantList = remember { mutableStateListOf<HashMap<String,String>>() }
+
             // Load data whenComposable is created
             LaunchedEffect(Unit) {
                 val data = readData(context)
@@ -61,7 +62,7 @@ class MyGarden_activity: ComponentActivity() {
     }
 }
 
-public fun readData(context : Context): List<HashMap<String,String>>{
+fun readData(context : Context): List<HashMap<String,String>>{
         // function that get the data from the database
     val plantList = mutableListOf<HashMap<String, String>>()
     val plant_data = Plant_data(context)
@@ -88,7 +89,8 @@ fun Displayingplants(plantList: List<HashMap<String, String>>){
     //function that display the plants in the garden
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn {
-            items(plantList){ plant -> PlantItem(plant) }
+            items(plantList){ plant -> PlantItem(plant)
+            }
         }
     }
 }
@@ -98,6 +100,7 @@ fun Displayingplants(plantList: List<HashMap<String, String>>){
 @Composable
 fun PlantItem(plant: HashMap<String, String>) {
     val context = LocalContext.current
+
     val plantID = plant["idplant"]
     val plant_nickname = plant["plant_nickname"]
     val plant_specie = plant["plant_specie"]
@@ -112,7 +115,7 @@ fun PlantItem(plant: HashMap<String, String>) {
     ){
         Button(onClick = {
             val intent = Intent(context, Plant_display::class.java).apply {
-                putExtra( plant.get("plant_id"), plantID)
+                putExtra( "idplant", plantID ?:-1) // -1 in case idplant is null
                 putExtra(plant.get("plant_nickname"), plant_nickname)
                 putExtra(plant.get("plant_specie"), plant_specie)
                 putExtra(plant.get("watering_frequency"), watering_frequency)
