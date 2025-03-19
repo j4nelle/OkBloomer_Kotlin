@@ -49,6 +49,13 @@ class MyGarden_activity : ComponentActivity() {
     }
 }
 
+data class Plant(
+    val name: String,
+    val specie: String,
+    val wateringFrequency: Float, // in days?
+    val needsWater: Boolean
+)
+
 @Preview(showBackground = true)
 @Composable
 fun Gardenlist(modifier: Modifier = Modifier) {
@@ -58,6 +65,15 @@ fun Gardenlist(modifier: Modifier = Modifier) {
     ) { result ->
         val data = result.data
     }
+
+    // plants example
+    val plantList = listOf(
+        Plant("Plant 1", "Cactus", 3.0f, true),
+        Plant("Plant 2", "Fern", 5.0f, false)
+    )
+
+    val green = Color(0xFF81C784)
+    val red = Color(0xD9EF5350)
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -75,31 +91,26 @@ fun Gardenlist(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = { /* Go to the activity displaying plant info */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            ) {
-                Text("Plant 1", fontSize = 18.sp)
-            }
+            // make button for each plant
+            plantList.forEach { plant ->
+                Button(
+                    onClick = {
+                        // go to plant detail
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (plant.needsWater) red else green
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    Text(plant.name, fontSize = 18.sp)
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = { /* Go to the activity displaying plant info */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            ) {
-                Text("Plant 2", fontSize = 18.sp)
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
 }
-
 
