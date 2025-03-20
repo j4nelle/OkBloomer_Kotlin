@@ -17,6 +17,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -106,24 +107,40 @@ fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String,
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            //delete button
-            Button(
-                onClick = {
-                    delete_data(plantID = plantID, context)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                //delete button
+                Button(
+                    onClick = {
+                        delete_data(plantID = plantID, context)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
 
-            )
-            {
-                Text(text = "Delete plant", fontSize = 18.sp)
+                )
+                {
+                    Text(text = "Delete plant", fontSize = 18.sp)
+                }
+
+
+                //watering button
+                Button(
+                    onClick = {/*function that turns the button green when clicked + update the last watering date*/
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),//this color or red when it needs to be watered
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+
+                    ) {
+                    Text(text = "Watered", fontSize = 18.sp) //"Watered" or "Needs to be watered" according to the watering frequency
+                }
             }
-
-            //watering button
-            //Button() {Text(text = "watering button") }
         }
 
     }
