@@ -1,6 +1,7 @@
 package es.uc3m.android.okbloomer_kotlin
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -13,9 +14,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,6 +34,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -52,6 +57,11 @@ class Adding_Plant_activity : ComponentActivity() {
 
             //context variable
             var context = LocalContext.current
+
+            // variables for launching the camera access
+            var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+
 
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -91,6 +101,21 @@ class Adding_Plant_activity : ComponentActivity() {
                     label = { Text(text = "What is the watering frequency ?") }
                 )
 
+                Spacer(modifier = Modifier.size(12.dp))
+
+                Button(
+                    onClick = {
+                        /*launches the access to camera*/
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    Text(text= "Take a picture", fontSize = 18.sp)
+                }
+
                 Button(
                     onClick = {
                         keep_data(plant_nickname, plant_specie, watering_frequency)
@@ -102,7 +127,6 @@ class Adding_Plant_activity : ComponentActivity() {
                 }
             }
         }
-
     }
 
     private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String) {
@@ -121,3 +145,5 @@ class Adding_Plant_activity : ComponentActivity() {
 
     }
 }
+
+
