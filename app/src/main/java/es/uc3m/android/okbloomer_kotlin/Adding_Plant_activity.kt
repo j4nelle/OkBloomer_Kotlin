@@ -65,7 +65,7 @@ class Adding_Plant_activity : ComponentActivity() {
                 //add space between elements
                 Spacer(modifier = Modifier.size(12.dp))
 
-                //creating a textfield for each variable
+                //creating a TextField for each variable
                 TextField(value = plant_nickname,
                     label = ({ Text("Enter your plant's nickname") }),
                     modifier = Modifier.fillMaxWidth(),
@@ -101,7 +101,9 @@ class Adding_Plant_activity : ComponentActivity() {
                     // will have to switch to a text_button variable that says "added" when you click it
                 }
             }
-        }   }
+        }
+
+    }
 
     private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String) {
         val plant_data = Plant_data(this)
@@ -110,10 +112,11 @@ class Adding_Plant_activity : ComponentActivity() {
         //creating a message to make sure the data is saved
         Toast.makeText(this, "id : $autonumeric", Toast.LENGTH_SHORT).show()
 
-        //making sure we start the garden activity to display the new plants once it's added
+        //passing the id of the plant we just added to the activity Plant_display
         val intent = Intent(this, Plant_display::class.java).apply {
             putExtra("idplant", autonumeric.toString())
         }
+        //making sure we start the garden activity to display the new plants once it's added
         startActivity(Intent(this, MyGarden_activity::class.java ))
 
     }
