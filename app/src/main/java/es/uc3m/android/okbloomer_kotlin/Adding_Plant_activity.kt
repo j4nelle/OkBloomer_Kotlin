@@ -1,12 +1,20 @@
 package es.uc3m.android.okbloomer_kotlin
 
+import android.app.Activity
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -36,11 +44,14 @@ import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 
 
@@ -61,6 +72,23 @@ class Adding_Plant_activity : ComponentActivity() {
             // variables for launching the camera access
             var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
+            val cameraLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == Activity.RESULT_OK){
+                    val bitmap = result.data?.extras?.get("data") as? Bitmap
+                    imageBitmap = bitmap
+                }
+            }
+
+            val permissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission()
+            ) { isGranted ->
+                if (isGranted){
+                    launchCamera(cameraLauncher)
+                }
+
+            }
 
 
             Column(
@@ -105,7 +133,17 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 Button(
                     onClick = {
-                        /*launches the access to camera*/
+                        //launches the access to camera
+                        if(ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED
+                            ){
+                            launchCamera(cameraLauncher)
+                            }
+                        else{
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                     modifier = Modifier
@@ -114,6 +152,16 @@ class Adding_Plant_activity : ComponentActivity() {
                         .clip(RoundedCornerShape(12.dp))
                 ) {
                     Text(text= "Take a picture", fontSize = 18.sp)
+                }
+
+                //displaying the image once you took it
+                Spacer(modifier = Modifier.height(16.dp))
+                imageBitmap?.let { bitmap->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = stringResource(R.string.image_content),
+                        modifier = Modifier.size(250.dp)
+                    )
                 }
 
                 Button(
@@ -128,6 +176,10 @@ class Adding_Plant_activity : ComponentActivity() {
             }
         }
     }
+
+    private fun launchCamera(launcher: ActivityResultLauncher<Intent>) {
+        launcher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
+        }
 
     private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String) {
         val plant_data = Plant_data(this)
