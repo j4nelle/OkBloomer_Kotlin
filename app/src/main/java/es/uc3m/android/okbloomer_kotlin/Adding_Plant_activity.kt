@@ -83,6 +83,7 @@ class Adding_Plant_activity : ComponentActivity() {
 
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
+
             ) { isGranted ->
                 if (isGranted){
                     launchCamera(cameraLauncher)
@@ -156,6 +157,8 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 //displaying the image once you took it
                 Spacer(modifier = Modifier.height(16.dp))
+
+
                 imageBitmap?.let { bitmap->
                     Image(
                         bitmap = bitmap.asImageBitmap(),
