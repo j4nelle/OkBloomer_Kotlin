@@ -12,12 +12,12 @@ class Plant_data(context: Context)
 
 
     override fun onCreate(db: SQLiteDatabase) {
-    db.execSQL("CREATE TABLE mygarden("+
+        db.execSQL("CREATE TABLE mygarden("+
                 "idplant INTEGER PRIMARY KEY AUTOINCREMENT,"+
                 "plant_nickname TEXT,"+
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
-            "typo INTEGER)")
+                "typo INTEGER)")
     }
 
     fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int) : Long{
