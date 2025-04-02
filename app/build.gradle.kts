@@ -63,8 +63,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    // for displaying image with path
+    implementation(libs.coil.compose)
 
-    // dependencies needed for the storage on a database ? not working yet
-    //implementation "androidx.room:room-common:2.6.1"
-    //kapt "androidx.room:room-compiler:2.6.1"
 }

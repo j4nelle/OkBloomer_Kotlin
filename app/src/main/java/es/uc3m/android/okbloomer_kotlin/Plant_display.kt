@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Paint.Align
+import android.net.Uri
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,8 +33,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import coil.compose.AsyncImage
 import es.uc3m.android.okbloomer_kotlin.GreetingPreview
 import es.uc3m.android.okbloomer_kotlin.R
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
@@ -64,6 +70,8 @@ class Plant_display : ComponentActivity() {
         var plant_specie = "Unknown"
         var watering_frequency = "Unknown"
         var typo = "Unknown"
+        var photo_path = "Unknowm"
+
 
         // reading the database :
         val cursor = plantData.readableDatabase.rawQuery(
@@ -74,18 +82,18 @@ class Plant_display : ComponentActivity() {
             plant_specie = cursor.getString(cursor.getColumnIndexOrThrow("plant_specie"))
             watering_frequency = cursor.getString(cursor.getColumnIndexOrThrow("watering_frequency"))
             typo = cursor.getString(cursor.getColumnIndexOrThrow("typo"))
-
+            photo_path = cursor.getString(cursor.getColumnIndexOrThrow("photo_path"))
         }
         cursor.close()
         setContent {
-        Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, typo)
+        Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, typo, photo_path)
         }
 
     }
 }
 
 @Composable
-fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String, wateringFrequency: String, typo: String) {
+fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String, wateringFrequency: String, typo: String, photo_path:String) {
     var context = LocalContext.current
 
     Box(
@@ -106,6 +114,14 @@ fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String,
             Text(text = "Watering frequency :$wateringFrequency",fontSize = 18.sp)
 
             Spacer(modifier = Modifier.height(12.dp))
+
+            /*{ uri ->
+                AsyncImage(
+                    model = uri,
+                    contentDescription = "Plant image",
+                    modifier = Modifier.size(250.dp)
+                )
+            }*/
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -17,10 +17,11 @@ class Plant_data(context: Context)
                 "plant_nickname TEXT,"+
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
-            "typo INTEGER)")
+            "typo INTEGER,"+
+            "photo_path TEXT)")
     }
 
-    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int) : Long{
+    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String) : Long{
         val db = this.writableDatabase
         //db.execSQL("INSERT INTO ...")
         val contentValues = ContentValues().apply {
@@ -28,6 +29,7 @@ class Plant_data(context: Context)
             put("plant_specie", plant_specie)
             put("watering_frequency", watering_frequency)
             put("typo", typo)
+            put("photo_path", photo_path)
         }
 
         val autonumeric = db.insert("mygarden", null, contentValues)

@@ -5,6 +5,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
@@ -52,8 +53,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
-
+import java.io.File
+import coil.compose.AsyncImage
 
 class Adding_Plant_activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +68,7 @@ class Adding_Plant_activity : ComponentActivity() {
             var plant_nickname by remember { mutableStateOf("") }
             var plant_specie by remember { mutableStateOf("") }
             var watering_frequency by remember { mutableStateOf("") }
+            var imageUri by remember { mutableStateOf<Uri?>(null) }
 
             //context variable
             var context = LocalContext.current
@@ -72,21 +76,33 @@ class Adding_Plant_activity : ComponentActivity() {
             // variables for launching the camera access
             var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
+            // variables to get access and store the photo's path
+            val uri = remember { mutableStateOf<Uri?>(null) }
+            val photoFile = File(context.filesDir, "plant_${System.currentTimeMillis()}.jpg")
+
+            val uriForFile = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+
+            //Camera launcher
             val cameraLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.TakePicturePreview()
-            ) { bitmap ->
-                if (bitmap != null) {
-                    imageBitmap = bitmap
+                contract = ActivityResultContracts.TakePicture()
+            ) { success ->
+                if (success) {
+                    imageUri = uriForFile
                 } else {
                     Toast.makeText(context, "Failed to capture image", Toast.LENGTH_SHORT).show()
                 }
             }
 
+            //Permission launcher
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
             ) { isGranted ->
                 if (isGranted) {
-                    cameraLauncher.launch(null)
+                    cameraLauncher.launch(uriForFile)
                 } else {
                     Toast.makeText(context, "Camera permission is required!", Toast.LENGTH_SHORT).show()
                 }
@@ -142,7 +158,7 @@ class Adding_Plant_activity : ComponentActivity() {
                             Manifest.permission.CAMERA
                             ) == PackageManager.PERMISSION_GRANTED
                             ){
-                            cameraLauncher.launch(null)
+                            cameraLauncher.launch(uriForFile)
                             }
                         else{
                             permissionLauncher.launch(Manifest.permission.CAMERA)
@@ -157,21 +173,22 @@ class Adding_Plant_activity : ComponentActivity() {
                     Text(text= "Take a picture", fontSize = 18.sp)
                 }
 
-                //displaying the image once you took it
+
                 Spacer(modifier = Modifier.height(16.dp))
 
-
-                imageBitmap?.let { bitmap->
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = stringResource(R.string.image_content),
+                //displaying the image once you took it
+                imageUri?.let { uri ->
+                    AsyncImage(
+                        model = uri,
+                        contentDescription = "Plant Image",
                         modifier = Modifier.size(250.dp)
                     )
                 }
 
+
                 Button(
                     onClick = {
-                        keep_data(plant_nickname, plant_specie, watering_frequency)
+                        keep_data(plant_nickname, plant_specie, watering_frequency, uri.value?.toString() ?:"")
                     }
                     //colors =
                 ) {
@@ -186,9 +203,10 @@ class Adding_Plant_activity : ComponentActivity() {
         launcher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
         }
 
-    private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String) {
+    private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String) {
         val plant_data = Plant_data(this)
-        val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1)
+        val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
+
 
         //creating a message to make sure the data is saved
         Toast.makeText(this, "id : $autonumeric", Toast.LENGTH_SHORT).show()
