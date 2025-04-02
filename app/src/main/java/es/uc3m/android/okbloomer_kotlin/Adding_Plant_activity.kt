@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -69,7 +70,7 @@ class Adding_Plant_activity : ComponentActivity() {
             var plant_specie by remember { mutableStateOf("") }
             var watering_frequency by remember { mutableStateOf("") }
             var imageUri by remember { mutableStateOf<Uri?>(null) }
-
+            var photo_path by remember { mutableStateOf("") }
             //context variable
             var context = LocalContext.current
 
@@ -159,6 +160,10 @@ class Adding_Plant_activity : ComponentActivity() {
                             ) == PackageManager.PERMISSION_GRANTED
                             ){
                             cameraLauncher.launch(uriForFile)
+                            Log.d("Photo Path", "Captured image URI: $uriForFile")
+
+                            //updating the value of the path AS A STRING
+                            photo_path = uriForFile.toString()
                             }
                         else{
                             permissionLauncher.launch(Manifest.permission.CAMERA)
@@ -188,7 +193,7 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 Button(
                     onClick = {
-                        keep_data(plant_nickname, plant_specie, watering_frequency, uri.value?.toString() ?:"")
+                        keep_data(plant_nickname, plant_specie, watering_frequency, photo_path)
                     }
                     //colors =
                 ) {
@@ -199,13 +204,12 @@ class Adding_Plant_activity : ComponentActivity() {
         }
     }
 
-    private fun launchCamera(launcher: ActivityResultLauncher<Intent>) {
-        launcher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
-        }
 
     private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String) {
         val plant_data = Plant_data(this)
         val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
+
+        Log.d("Photo Path", "Saving photo path: $photoPath")
 
 
         //creating a message to make sure the data is saved

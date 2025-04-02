@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.graphics.Paint.Align
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -84,6 +85,9 @@ class Plant_display : ComponentActivity() {
             typo = cursor.getString(cursor.getColumnIndexOrThrow("typo"))
             photo_path = cursor.getString(cursor.getColumnIndexOrThrow("photo_path"))
         }
+
+        Log.d("Plant Info", "Retrieved photo path: $photo_path")
+
         cursor.close()
         setContent {
         Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, typo, photo_path)
@@ -93,8 +97,17 @@ class Plant_display : ComponentActivity() {
 }
 
 @Composable
-fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String, wateringFrequency: String, typo: String, photo_path:String) {
+fun Displaying_info(
+    plantID: String,
+    plantNickname: String,
+    plantSpecie: String,
+    wateringFrequency: String,
+    typo: String,
+    photo_path:String // this parameter is now nullable
+) {
     var context = LocalContext.current
+
+    val imageUri = if (photo_path.isNotEmpty()) Uri.parse(photo_path) else null
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -115,13 +128,20 @@ fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String,
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            /*{ uri ->
+            //displaying the image + testing if the Uri is ok / exists
+            if(imageUri!=null){
+                Log.d("Plant Info", "Valid image URI: $imageUri")
                 AsyncImage(
-                    model = uri,
-                    contentDescription = "Plant image",
+                    model = imageUri,
+                    contentDescription = "Plant Image",
                     modifier = Modifier.size(250.dp)
                 )
-            }*/
+            } else {
+                Log.d("Plant Info", "Invalid or empty image URI")
+                Text(text = "no image available given",
+                    fontSize = 16.sp,
+                    color = Color.Gray)
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -149,7 +169,8 @@ fun Displaying_info(plantID: String, plantNickname: String, plantSpecie: String,
                     onClick = {/*function that turns the button green when clicked + update the last watering date*/
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),//this color or red when it needs to be watered
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp)),
 

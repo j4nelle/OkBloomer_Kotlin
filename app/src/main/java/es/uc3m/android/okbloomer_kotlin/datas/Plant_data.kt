@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Row
 
 class Plant_data(context: Context)
-    : SQLiteOpenHelper(context, "myplants.db", null, 1) {
+    : SQLiteOpenHelper(context, "myplants.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
     db.execSQL("CREATE TABLE mygarden("+
@@ -31,6 +31,9 @@ class Plant_data(context: Context)
             put("typo", typo)
             put("photo_path", photo_path)
         }
+
+        // to see the inserted values
+        Log.d("DB_INSERT", "Inserting: $plant_nickname, $plant_specie, $watering_frequency, $typo, $photo_path")
 
         val autonumeric = db.insert("mygarden", null, contentValues)
 
@@ -63,7 +66,11 @@ class Plant_data(context: Context)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("Not yet implemented")
+        if (oldVersion < 2) {
+            // Add the new column
+            db?.execSQL("ALTER TABLE mygarden ADD COLUMN photo_path TEXT")
+            Log.d("DB_UPGRADE", "New column added")
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package es.uc3m.android.okbloomer_kotlin
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -137,9 +138,13 @@ fun PlantItem(plant: HashMap<String, String>) {
     val plant_specie = plant["plant_specie"]
     val watering_frequency = plant["watering_frequency"]
     val typo = plant["typo"]
+    val photo_path = plant["photo_path"]
 
+    //converting back the string photo_path as a Uri
+    val imageUri = if (!photo_path.isNullOrEmpty()) Uri.parse(photo_path) else null
 
-    Column (modifier = Modifier.fillMaxWidth()
+    Column (modifier = Modifier
+        .fillMaxWidth()
         .padding(8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -151,6 +156,7 @@ fun PlantItem(plant: HashMap<String, String>) {
                 putExtra(plant.get("plant_specie"), plant_specie)
                 putExtra(plant.get("watering_frequency"), watering_frequency)
                 putExtra(plant.get("typo"), typo)
+                putExtra(plant.get("photo_path"), photo_path)
             }
             context.startActivity(intent)
             }
