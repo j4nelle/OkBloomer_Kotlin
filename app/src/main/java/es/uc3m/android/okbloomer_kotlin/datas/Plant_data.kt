@@ -6,18 +6,18 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import androidx.compose.foundation.layout.Row
 
 class Plant_data(context: Context)
     : SQLiteOpenHelper(context, "myplants.db", null, 1) {
 
+
     override fun onCreate(db: SQLiteDatabase) {
-    db.execSQL("CREATE TABLE mygarden("+
+        db.execSQL("CREATE TABLE mygarden("+
                 "idplant INTEGER PRIMARY KEY AUTOINCREMENT,"+
                 "plant_nickname TEXT,"+
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
-            "typo INTEGER)")
+                "typo INTEGER)")
     }
 
     fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int) : Long{
@@ -38,20 +38,6 @@ class Plant_data(context: Context)
             Log.d("DB_SUCCESS", "Insertion réussie, id: $autonumeric")
         }
         return autonumeric
-    }
-
-    fun deleting_a_plant(idplant : String): Boolean {
-        val db = this.writableDatabase
-        val Row_deleted = db.delete("mygarden", "idplant = ?", arrayOf(idplant))
-        db.close()
-
-        //tests messages
-        if (Row_deleted > 0) {
-            Log.d("Success deletion", "Plant with ID $idplant deleted successfully")
-        } else{
-            Log.e("Error deletion", "Deletion failed")
-        }
-        return Row_deleted > 0
     }
 
     fun plantSelect(plant_data : Plant_data): Cursor{
