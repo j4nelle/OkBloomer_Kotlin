@@ -6,21 +6,22 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import androidx.compose.foundation.layout.Row
 
 class Plant_data(context: Context)
-    : SQLiteOpenHelper(context, "myplants.db", null, 1) {
-
+    : SQLiteOpenHelper(context, "myplants.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL("CREATE TABLE mygarden("+
+    db.execSQL("CREATE TABLE mygarden("+
                 "idplant INTEGER PRIMARY KEY AUTOINCREMENT,"+
                 "plant_nickname TEXT,"+
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
-                "typo INTEGER)")
+            "typo INTEGER,"+
+            "photo_path TEXT)")
     }
 
-    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int) : Long{
+    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String) : Long{
         val db = this.writableDatabase
         //db.execSQL("INSERT INTO ...")
         val contentValues = ContentValues().apply {
@@ -28,7 +29,11 @@ class Plant_data(context: Context)
             put("plant_specie", plant_specie)
             put("watering_frequency", watering_frequency)
             put("typo", typo)
+            put("photo_path", photo_path)
         }
+
+        // to see the inserted values
+        Log.d("DB_INSERT", "Inserting: $plant_nickname, $plant_specie, $watering_frequency, $typo, $photo_path")
 
         val autonumeric = db.insert("mygarden", null, contentValues)
 
@@ -40,6 +45,20 @@ class Plant_data(context: Context)
         return autonumeric
     }
 
+    fun deleting_a_plant(idplant : String): Boolean {
+        val db = this.writableDatabase
+        val Row_deleted = db.delete("mygarden", "idplant = ?", arrayOf(idplant))
+        db.close()
+
+        //tests messages
+        if (Row_deleted > 0) {
+            Log.d("Success deletion", "Plant with ID $idplant deleted successfully")
+        } else{
+            Log.e("Error deletion", "Deletion failed")
+        }
+        return Row_deleted > 0
+    }
+
     fun plantSelect(plant_data : Plant_data): Cursor{
         val db = plant_data.readableDatabase
         val sql = "SELECT * from mygarden ORDER BY idplant DESC" //selects every object from the database mygarden
@@ -47,7 +66,11 @@ class Plant_data(context: Context)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("Not yet implemented")
+        if (oldVersion < 2) {
+            // Add the new column
+            db?.execSQL("ALTER TABLE mygarden ADD COLUMN photo_path TEXT")
+            Log.d("DB_UPGRADE", "New column added")
+        }
     }
 
 }
