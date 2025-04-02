@@ -73,23 +73,25 @@ class Adding_Plant_activity : ComponentActivity() {
             var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
             val cameraLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartActivityForResult()
-            ) { result ->
-                if (result.resultCode == Activity.RESULT_OK){
-                    val bitmap = result.data?.extras?.get("data") as? Bitmap
+                contract = ActivityResultContracts.TakePicturePreview()
+            ) { bitmap ->
+                if (bitmap != null) {
                     imageBitmap = bitmap
+                } else {
+                    Toast.makeText(context, "Failed to capture image", Toast.LENGTH_SHORT).show()
                 }
             }
 
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
-
             ) { isGranted ->
-                if (isGranted){
-                    launchCamera(cameraLauncher)
+                if (isGranted) {
+                    cameraLauncher.launch(null)
+                } else {
+                    Toast.makeText(context, "Camera permission is required!", Toast.LENGTH_SHORT).show()
                 }
-
             }
+
 
 
             Column(
@@ -140,7 +142,7 @@ class Adding_Plant_activity : ComponentActivity() {
                             Manifest.permission.CAMERA
                             ) == PackageManager.PERMISSION_GRANTED
                             ){
-                            launchCamera(cameraLauncher)
+                            cameraLauncher.launch(null)
                             }
                         else{
                             permissionLauncher.launch(Manifest.permission.CAMERA)
