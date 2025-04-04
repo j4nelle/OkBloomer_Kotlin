@@ -7,11 +7,19 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!--Permission to have access to the camera-->
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <!-- Optional: Required for saving images on older Android versions -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
+
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
+
+
 
     <application
         android:allowBackup="true"
@@ -22,6 +30,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OkBloomer_Kotlin"
+        android:requestLegacyExternalStorage="true"
         tools:targetApi="31">
 
 
@@ -34,6 +43,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         
         <activity
             android:name=".Plant_display"

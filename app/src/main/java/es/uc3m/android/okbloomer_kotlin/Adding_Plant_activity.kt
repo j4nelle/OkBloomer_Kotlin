@@ -2,9 +2,13 @@ package es.uc3m.android.okbloomer_kotlin
 
 import android.app.Activity
 import android.Manifest
+import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -21,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +63,9 @@ import androidx.core.content.FileProvider
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 import java.io.File
 import coil.compose.AsyncImage
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
 
 class Adding_Plant_activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,14 +75,17 @@ class Adding_Plant_activity : ComponentActivity() {
 
             // Initiation of the variables
             var plant_nickname by remember { mutableStateOf("") }
+            var plantID by remember { mutableStateOf("") }
             var plant_specie by remember { mutableStateOf("") }
             var watering_frequency by remember { mutableStateOf("") }
             var imageUri by remember { mutableStateOf<Uri?>(null) }
             var photo_path by remember { mutableStateOf("") }
+
             //context variable
             var context = LocalContext.current
 
             // variables for launching the camera access
+            // camera paths are stored in xml file
             var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
             // variables to get access and store the photo's path
@@ -109,6 +120,32 @@ class Adding_Plant_activity : ComponentActivity() {
                 }
             }
 
+            //Gallery launcher
+            // gallery paths are translated to absolute file paths
+
+            val galleryLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri ? ->
+
+                uri?.let {
+                    // get the input stream from the selected URI and creates a bitmap
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+
+                    //displaying the picture in the screen
+                    imageUri = it
+
+                    //save file
+                    val file = saveImage(bitmap)
+
+                    if (file != null) {
+                       photo_path = file.absolutePath
+                        Log.d("Gallery Image", "Saved Image")
+                    } else {
+                        Toast.makeText(context, "Failed to save image path", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
 
 
             Column(
@@ -151,57 +188,115 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.size(12.dp))
 
+                Row {
+                    Button(
+                        onClick = {
+                            //launches the access to camera
+                            if (ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                cameraLauncher.launch(uriForFile)
+                                Log.d("Photo Path", "Captured image URI: $uriForFile")
+
+                                //updating the value of the path AS A STRING
+                                photo_path = uriForFile.toString()
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .height(56.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        Text(text = "Take a picture", fontSize = 16.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    //displaying the image once you took it from camera
+                    imageUri?.let { uri ->
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "Plant Image",
+                            modifier = Modifier.size(250.dp)
+                        )
+                    }
+
+
+                    Button(
+                    onClick = {
+                        galleryLauncher.launch("image/*")
+
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    Text(text = "From gallery", fontSize = 16.sp)
+                }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    //displaying the image once you chose it from gallery
+                    imageUri?.let { uri ->
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "Selected Image",
+                            modifier = Modifier.size(250.dp)
+                        )
+                    }
+
+
+
+
+                }
+
+
+
+
                 Button(
                     onClick = {
-                        //launches the access to camera
-                        if(ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                            ) == PackageManager.PERMISSION_GRANTED
-                            ){
-                            cameraLauncher.launch(uriForFile)
-                            Log.d("Photo Path", "Captured image URI: $uriForFile")
-
-                            //updating the value of the path AS A STRING
-                            photo_path = uriForFile.toString()
-                            }
-                        else{
-                            permissionLauncher.launch(Manifest.permission.CAMERA)
-                        }
+                        keep_data(plant_nickname,
+                            plant_specie,
+                            watering_frequency,
+                            imageUri?.toString() ?: "")
                     },
+
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                ) {
-                    Text(text= "Take a picture", fontSize = 18.sp)
-                }
 
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                //displaying the image once you took it
-                imageUri?.let { uri ->
-                    AsyncImage(
-                        model = uri,
-                        contentDescription = "Plant Image",
-                        modifier = Modifier.size(250.dp)
-                    )
-                }
-
-
-                Button(
-                    onClick = {
-                        keep_data(plant_nickname, plant_specie, watering_frequency, photo_path)
-                    }
-                    //colors =
                 ) {
                     Text("Add to Garden")
-                    // will have to switch to a text_button variable that says "added" when you click it
-                }
+                    }
             }
         }
+    }
+
+    //saving image to internal storage
+    private fun saveImage(bitmap: Bitmap?): File? {
+        val fileName = "gallery_${System.currentTimeMillis()}.jpg"
+        val file = File(applicationContext.filesDir, fileName)
+
+        return try {
+            val outputStream = FileOutputStream(file)
+            if (bitmap != null) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            }
+            outputStream.close()
+            file
+        } catch (e: IOException){
+            e.printStackTrace()
+            null
+        }
+
     }
 
 

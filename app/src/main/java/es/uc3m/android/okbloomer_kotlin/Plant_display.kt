@@ -71,7 +71,7 @@ class Plant_display : ComponentActivity() {
         var plant_specie = "Unknown"
         var watering_frequency = "Unknown"
         var typo = "Unknown"
-        var photo_path = "Unknowm"
+        var photo_path = "Unknown"
 
 
         // reading the database :
