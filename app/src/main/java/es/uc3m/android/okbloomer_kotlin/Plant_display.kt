@@ -107,7 +107,8 @@ fun Displaying_info(
 ) {
     var context = LocalContext.current
 
-    val imageUri = if (photo_path.isNotEmpty()) Uri.parse(photo_path) else null
+    val imageUri = if (photo_path.isNotEmpty()) Uri.parse(photo_path)
+    else null
 
     Box(
         modifier = Modifier.fillMaxSize()
