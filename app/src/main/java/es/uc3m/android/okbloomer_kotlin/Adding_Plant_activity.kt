@@ -124,28 +124,24 @@ class Adding_Plant_activity : ComponentActivity() {
             // gallery paths are translated to absolute file paths
 
             val galleryLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.GetContent()
-            ) { uri: Uri ? ->
-
+                contract = ActivityResultContracts.OpenDocument() // Open Document helps keep the URI when relaunching the app
+            ) { uri: Uri? ->
                 uri?.let {
-                    // get the input stream from the selected URI and creates a bitmap
-                    val inputStream = context.contentResolver.openInputStream(it)
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-
-                    //displaying the picture in the screen
-                    imageUri = it
-
-                    //save file
-                    val file = saveImage(bitmap)
-
-                    if (file != null) {
-                       photo_path = file.absolutePath
-                        Log.d("Gallery Image", "Saved Image")
-                    } else {
-                        Toast.makeText(context, "Failed to save image path", Toast.LENGTH_SHORT).show()
+                    try {
+                        context.contentResolver.takePersistableUriPermission(
+                            it,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION //changing permissions to still have access to the photo when relaunching
+                        )
+                        imageUri = it
+                        photo_path = it.toString()
+                        Log.d("Gallery Image", "Persisted URI: $photo_path")
+                    } catch (e: SecurityException) {
+                        Toast.makeText(context, "Unable to persist permission", Toast.LENGTH_SHORT).show()
+                        e.printStackTrace()
                     }
                 }
             }
+
 
 
             Column(
@@ -229,7 +225,7 @@ class Adding_Plant_activity : ComponentActivity() {
 
                     Button(
                     onClick = {
-                        galleryLauncher.launch("image/*")
+                        galleryLauncher.launch(arrayOf("image/*")) // This part changed to adapt to the new camera launcher
 
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
