@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview(modifier: Modifier = Modifier) {
@@ -80,7 +81,7 @@ fun GreetingPreview(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    val intent = Intent(context, AddingPlantQuestion::class.java)
+                    val intent = Intent(context, Adding_Plant_question::class.java)
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),

@@ -39,10 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import es.uc3m.android.okbloomer_kotlin.datas.PlantData
 import java.io.File
 import coil.compose.AsyncImage
-
+import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 
 
 class AddingPlantActivity : ComponentActivity() {
@@ -52,11 +51,11 @@ class AddingPlantActivity : ComponentActivity() {
         setContent {
 
             // Initiation of the variables
-            var plantnickname by remember { mutableStateOf("") }
-            var plantspecie by remember { mutableStateOf("") }
-            var wateringfrequency by remember { mutableStateOf("") }
+            var plant_nickname by remember { mutableStateOf("") }
+            var plant_specie by remember { mutableStateOf("") }
+            var watering_frequency by remember { mutableStateOf("") }
             var imageUri by remember { mutableStateOf<Uri?>(null) }
-            var photopath by remember { mutableStateOf("") }
+            var photo_path by remember { mutableStateOf("") }
 
             //context variable
             val context = LocalContext.current
@@ -105,8 +104,8 @@ class AddingPlantActivity : ComponentActivity() {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION //changing permissions to still have access to the photo when relaunching
                         )
                         imageUri = it
-                        photopath = it.toString()
-                        Log.d("Gallery Image", "Persisted URI: $photopath")
+                        photo_path = it.toString()
+                        Log.d("Gallery Image", "Persisted URI: $photo_path")
                     } catch (e: SecurityException) {
                         Toast.makeText(context, "Unable to persist permission", Toast.LENGTH_SHORT).show()
                         e.printStackTrace()
@@ -129,18 +128,18 @@ class AddingPlantActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.size(12.dp))
 
                 //creating a TextField for each variable
-                TextField(value = plantnickname,
+                TextField(value = plant_nickname,
                     label = ({ Text("Enter your plant's nickname") }),
                     modifier = Modifier.fillMaxWidth(),
                     onValueChange = {
-                        plantnickname = it
+                        plant_nickname = it
                     })
 
                 Spacer(modifier = Modifier.size(12.dp))
 
                 TextField(
-                    value = plantspecie,
-                    onValueChange = { plantspecie = it },
+                    value = plant_specie,
+                    onValueChange = { plant_specie = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = ({ Text("Enter your plant's specie") })
                 )
@@ -148,8 +147,8 @@ class AddingPlantActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.size(12.dp))
 
                 TextField(
-                    value = wateringfrequency,
-                    onValueChange = { wateringfrequency = it },
+                    value = watering_frequency,
+                    onValueChange = { watering_frequency = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(text = "What is the watering frequency ?") }
                 )
@@ -169,7 +168,7 @@ class AddingPlantActivity : ComponentActivity() {
                                 Log.d("Photo Path", "Captured image URI: $uriForFile")
 
                                 //updating the value of the path AS A STRING
-                                photopath = uriForFile.toString()
+                                photo_path = uriForFile.toString()
                             } else {
                                 permissionLauncher.launch(Manifest.permission.CAMERA)
                             }
@@ -229,9 +228,9 @@ class AddingPlantActivity : ComponentActivity() {
 
                 Button(
                     onClick = {
-                        keepdata(plantnickname,
-                            plantspecie,
-                            wateringfrequency,
+                        keepdata(plant_nickname,
+                            plant_specie,
+                            watering_frequency,
                             imageUri?.toString() ?: "")
                     },
 
@@ -250,8 +249,8 @@ class AddingPlantActivity : ComponentActivity() {
 
 
     private fun keepdata(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String) {
-        val plantdata = PlantData(this)
-        val autonumeric = plantdata.addingnewplant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
+        val plantdata = Plant_data(this)
+        val autonumeric = plantdata.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
 
         Log.d("Photo Path", "Saving photo path: $photoPath")
 

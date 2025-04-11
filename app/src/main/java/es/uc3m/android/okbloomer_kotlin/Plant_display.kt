@@ -50,7 +50,7 @@ class PlantDisplay : ComponentActivity() {
         //var typo = "Unknown"
         var photopath = "Unknown"
 
-
+//
         // reading the database :
         val cursor = plantData.readableDatabase.rawQuery(
             "SELECT * FROM mygarden WHERE idplant = ?", arrayOf(plantID ?:"-1")
