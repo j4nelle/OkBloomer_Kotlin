@@ -3,11 +3,16 @@ package es.uc3m.android.okbloomer_kotlin
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,19 +29,32 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import es.uc3m.android.okbloomer_kotlin.datas.PlantData
+import androidx.compose.ui.unit.sp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import es.uc3m.android.okbloomer_kotlin.GreetingPreview
+import es.uc3m.android.okbloomer_kotlin.R
+import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 
-class MyGardenActivity : ComponentActivity() {
+//old code version
+class MyGarden_activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -60,8 +78,8 @@ class MyGardenActivity : ComponentActivity() {
 fun readData(context : Context): List<HashMap<String,String>>{
         // function that get the data from the database
     val plantList = mutableListOf<HashMap<String, String>>()
-    val plantdata = PlantData(context)
-    val cursor: Cursor = plantdata.plantSelect(plantdata)
+    val plant_data = Plant_data(context)
+    val cursor: Cursor = plant_data.plantSelect(plant_data)
 
     if (cursor.moveToFirst()) {
         do {
@@ -82,6 +100,10 @@ fun readData(context : Context): List<HashMap<String,String>>{
 @Composable
 fun Displayingplants(plantList: List<HashMap<String, String>>){
     //function that display the plants in the garden
+
+    //changing the color values
+    val green = Color(0xFF810C784)
+    val red = Color(0xD9EF5350)
 
 
     Box(
@@ -113,13 +135,14 @@ fun PlantItem(plant: HashMap<String, String>) {
     val context = LocalContext.current
 
     val plantID = plant["idplant"]
-    val plantnickname = plant["plant_nickname"]
-    val plantspecie = plant["plant_specie"]
-    val wateringfrequency = plant["watering_frequency"]
+    val plant_nickname = plant["plant_nickname"]
+    val plant_specie = plant["plant_specie"]
+    val watering_frequency = plant["watering_frequency"]
     val typo = plant["typo"]
-    val photopath = plant["photo_path"]
+    val photo_path = plant["photo_path"]
 
-
+    //converting back the string photo_path as a Uri
+    val imageUri = if (!photo_path.isNullOrEmpty()) Uri.parse(photo_path) else null
 
     Column (modifier = Modifier
         .fillMaxWidth()
@@ -128,13 +151,13 @@ fun PlantItem(plant: HashMap<String, String>) {
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Button(onClick = {
-            val intent = Intent(context, PlantDisplay::class.java).apply {
+            val intent = Intent(context, Plant_display::class.java).apply {
                 putExtra( "idplant", plantID ?:-1) // -1 in case idplant is null
-                putExtra(plant["plant_nickname"], plantnickname)
-                putExtra(plant["plant_specie"], plantspecie)
-                putExtra(plant["watering_frequency"], wateringfrequency)
-                putExtra(plant["typo"], typo)
-                putExtra(plant["photo_path"], photopath)
+                putExtra(plant.get("plant_nickname"), plant_nickname)
+                putExtra(plant.get("plant_specie"), plant_specie)
+                putExtra(plant.get("watering_frequency"), watering_frequency)
+                putExtra(plant.get("typo"), typo)
+                putExtra(plant.get("photo_path"), photo_path)
             }
             context.startActivity(intent)
             }
@@ -145,7 +168,7 @@ fun PlantItem(plant: HashMap<String, String>) {
                 .height(56.dp)
                 .clip(RoundedCornerShape(12.dp))
         ) {
-            Text(text = plant["plant_nickname"].toString())
+            Text(text = plant.get("plant_nickname").toString())
         }// change the text for it to display the plant's nickname
         Spacer(modifier = Modifier.height(12.dp))
     }

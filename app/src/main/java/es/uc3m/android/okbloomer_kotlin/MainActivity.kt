@@ -21,6 +21,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 
+
+
+//old code version
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +68,7 @@ fun GreetingPreview(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    val intent = Intent(context, MyGardenActivity::class.java)
+                    val intent = Intent(context, MyGarden_activity::class.java)
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
