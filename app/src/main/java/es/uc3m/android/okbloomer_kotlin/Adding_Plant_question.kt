@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 
+
 class Adding_Plant_question : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import androidx.compose.foundation.layout.Row
 
+
 class Plant_data(context: Context)
     : SQLiteOpenHelper(context, "myplants.db", null, 2) {
 

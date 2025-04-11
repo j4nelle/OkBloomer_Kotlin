@@ -73,7 +73,7 @@ class MyGarden_activity : ComponentActivity() {
         }
     }
 }
-
+//
 fun readData(context : Context): List<HashMap<String,String>>{
         // function that get the data from the database
     val plantList = mutableListOf<HashMap<String, String>>()

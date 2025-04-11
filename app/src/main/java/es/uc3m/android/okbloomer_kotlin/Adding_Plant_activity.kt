@@ -314,6 +314,7 @@ class Adding_Plant_activity : ComponentActivity() {
         startActivity(Intent(this, MyGarden_activity::class.java ))
 
     }
+
 }
 
 
