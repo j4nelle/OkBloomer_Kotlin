@@ -67,6 +67,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 
+//old version
 class Adding_Plant_activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

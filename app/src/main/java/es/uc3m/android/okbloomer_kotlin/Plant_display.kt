@@ -57,6 +57,8 @@ import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 import es.uc3m.android.okbloomer_kotlin.MyGarden_activity
 
+
+//old code version
 class Plant_display : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
