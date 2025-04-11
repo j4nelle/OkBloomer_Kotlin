@@ -6,34 +6,34 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import androidx.compose.foundation.layout.Row
 
-class Plant_data(context: Context)
+
+class PlantData(context: Context)
     : SQLiteOpenHelper(context, "myplants.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
     db.execSQL("CREATE TABLE mygarden("+
                 "idplant INTEGER PRIMARY KEY AUTOINCREMENT,"+
-                "plant_nickname TEXT,"+
-                "plant_specie TEXT,"+
-                "watering_frequency FLOAT,"+
+                "plantnickname TEXT,"+
+                "plantspecie TEXT,"+
+                "wateringfrequency FLOAT,"+
             "typo INTEGER,"+
-            "photo_path TEXT)")
+            "photopath TEXT)")
     }
 
-    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String) : Long{
+    fun addingnewplant(plantnickname : String, plantspecie: String, wateringfrequency : Float, typo : Int, photopath : String) : Long{
         val db = this.writableDatabase
         //db.execSQL("INSERT INTO ...")
         val contentValues = ContentValues().apply {
-            put("plant_nickname",plant_nickname)
-            put("plant_specie", plant_specie)
-            put("watering_frequency", watering_frequency)
+            put("plant_nickname",plantnickname)
+            put("plant_specie", plantspecie)
+            put("watering_frequency", wateringfrequency)
             put("typo", typo)
-            put("photo_path", photo_path)
+            put("photo_path", photopath)
         }
 
         // to see the inserted values
-        Log.d("DB_INSERT", "Inserting: $plant_nickname, $plant_specie, $watering_frequency, $typo, $photo_path")
+        Log.d("DB_INSERT", "Inserting: $plantnickname, $plantspecie, $wateringfrequency, $typo, $photopath")
 
         val autonumeric = db.insert("mygarden", null, contentValues)
 
@@ -45,22 +45,22 @@ class Plant_data(context: Context)
         return autonumeric
     }
 
-    fun deleting_a_plant(idplant : String): Boolean {
+    fun deletingaplant(idplant : String): Boolean {
         val db = this.writableDatabase
-        val Row_deleted = db.delete("mygarden", "idplant = ?", arrayOf(idplant))
+        val rowdeleted = db.delete("mygarden", "idplant = ?", arrayOf(idplant))
         db.close()
 
         //tests messages
-        if (Row_deleted > 0) {
+        if (rowdeleted > 0) {
             Log.d("Success deletion", "Plant with ID $idplant deleted successfully")
         } else{
             Log.e("Error deletion", "Deletion failed")
         }
-        return Row_deleted > 0
+        return rowdeleted > 0
     }
 
-    fun plantSelect(plant_data : Plant_data): Cursor{
-        val db = plant_data.readableDatabase
+    fun plantSelect(plantdata : PlantData): Cursor{
+        val db = plantdata.readableDatabase
         val sql = "SELECT * from mygarden ORDER BY idplant DESC" //selects every object from the database mygarden
         return db.rawQuery(sql, null)
     }

@@ -3,10 +3,8 @@ package es.uc3m.android.okbloomer_kotlin
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,11 +37,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val data = result.data
-    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -71,7 +64,7 @@ fun GreetingPreview(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    val intent = Intent(context, MyGarden_activity::class.java)
+                    val intent = Intent(context, MyGardenActivity::class.java)
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
@@ -87,7 +80,7 @@ fun GreetingPreview(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    val intent = Intent(context, Adding_Plant_question::class.java)
+                    val intent = Intent(context, AddingPlantQuestion::class.java)
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),

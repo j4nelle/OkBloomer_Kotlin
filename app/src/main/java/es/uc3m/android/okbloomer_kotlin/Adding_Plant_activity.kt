@@ -1,28 +1,18 @@
 package es.uc3m.android.okbloomer_kotlin
 
-import android.app.Activity
+
 import android.Manifest
-import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,63 +23,45 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
+import es.uc3m.android.okbloomer_kotlin.datas.PlantData
 import java.io.File
 import coil.compose.AsyncImage
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 
-class Adding_Plant_activity : ComponentActivity() {
+
+
+class AddingPlantActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
 
             // Initiation of the variables
-            var plant_nickname by remember { mutableStateOf("") }
-            var plantID by remember { mutableStateOf("") }
-            var plant_specie by remember { mutableStateOf("") }
-            var watering_frequency by remember { mutableStateOf("") }
+            var plantnickname by remember { mutableStateOf("") }
+            var plantspecie by remember { mutableStateOf("") }
+            var wateringfrequency by remember { mutableStateOf("") }
             var imageUri by remember { mutableStateOf<Uri?>(null) }
-            var photo_path by remember { mutableStateOf("") }
+            var photopath by remember { mutableStateOf("") }
 
             //context variable
-            var context = LocalContext.current
-
-            // variables for launching the camera access
-            // camera paths are stored in xml file
-            var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+            val context = LocalContext.current
 
             // variables to get access and store the photo's path
-            val uri = remember { mutableStateOf<Uri?>(null) }
             val photoFile = File(context.filesDir, "plant_${System.currentTimeMillis()}.jpg")
 
             val uriForFile = FileProvider.getUriForFile(
@@ -133,8 +105,8 @@ class Adding_Plant_activity : ComponentActivity() {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION //changing permissions to still have access to the photo when relaunching
                         )
                         imageUri = it
-                        photo_path = it.toString()
-                        Log.d("Gallery Image", "Persisted URI: $photo_path")
+                        photopath = it.toString()
+                        Log.d("Gallery Image", "Persisted URI: $photopath")
                     } catch (e: SecurityException) {
                         Toast.makeText(context, "Unable to persist permission", Toast.LENGTH_SHORT).show()
                         e.printStackTrace()
@@ -157,18 +129,18 @@ class Adding_Plant_activity : ComponentActivity() {
                 Spacer(modifier = Modifier.size(12.dp))
 
                 //creating a TextField for each variable
-                TextField(value = plant_nickname,
+                TextField(value = plantnickname,
                     label = ({ Text("Enter your plant's nickname") }),
                     modifier = Modifier.fillMaxWidth(),
                     onValueChange = {
-                        plant_nickname = it
+                        plantnickname = it
                     })
 
                 Spacer(modifier = Modifier.size(12.dp))
 
                 TextField(
-                    value = plant_specie,
-                    onValueChange = { plant_specie = it },
+                    value = plantspecie,
+                    onValueChange = { plantspecie = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = ({ Text("Enter your plant's specie") })
                 )
@@ -176,8 +148,8 @@ class Adding_Plant_activity : ComponentActivity() {
                 Spacer(modifier = Modifier.size(12.dp))
 
                 TextField(
-                    value = watering_frequency,
-                    onValueChange = { watering_frequency = it },
+                    value = wateringfrequency,
+                    onValueChange = { wateringfrequency = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(text = "What is the watering frequency ?") }
                 )
@@ -197,7 +169,7 @@ class Adding_Plant_activity : ComponentActivity() {
                                 Log.d("Photo Path", "Captured image URI: $uriForFile")
 
                                 //updating the value of the path AS A STRING
-                                photo_path = uriForFile.toString()
+                                photopath = uriForFile.toString()
                             } else {
                                 permissionLauncher.launch(Manifest.permission.CAMERA)
                             }
@@ -257,9 +229,9 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 Button(
                     onClick = {
-                        keep_data(plant_nickname,
-                            plant_specie,
-                            watering_frequency,
+                        keepdata(plantnickname,
+                            plantspecie,
+                            wateringfrequency,
                             imageUri?.toString() ?: "")
                     },
 
@@ -276,29 +248,10 @@ class Adding_Plant_activity : ComponentActivity() {
         }
     }
 
-    //saving image to internal storage
-    private fun saveImage(bitmap: Bitmap?): File? {
-        val fileName = "gallery_${System.currentTimeMillis()}.jpg"
-        val file = File(applicationContext.filesDir, fileName)
 
-        return try {
-            val outputStream = FileOutputStream(file)
-            if (bitmap != null) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            }
-            outputStream.close()
-            file
-        } catch (e: IOException){
-            e.printStackTrace()
-            null
-        }
-
-    }
-
-
-    private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String) {
-        val plant_data = Plant_data(this)
-        val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
+    private fun keepdata(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String) {
+        val plantdata = PlantData(this)
+        val autonumeric = plantdata.addingnewplant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
 
         Log.d("Photo Path", "Saving photo path: $photoPath")
 
@@ -307,11 +260,11 @@ class Adding_Plant_activity : ComponentActivity() {
         Toast.makeText(this, "id : $autonumeric", Toast.LENGTH_SHORT).show()
 
         //passing the id of the plant we just added to the activity Plant_display
-        val intent = Intent(this, Plant_display::class.java).apply {
+        /*val intent = Intent(this, PlantDisplay::class.java).apply {
             putExtra("idplant", autonumeric.toString())
-        }
+        }*/
         //making sure we start the garden activity to display the new plants once it's added
-        startActivity(Intent(this, MyGarden_activity::class.java ))
+        startActivity(Intent(this, MyGardenActivity::class.java ))
 
     }
 }

@@ -3,10 +3,8 @@ package es.uc3m.android.okbloomer_kotlin
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
 
-class Adding_Plant_question : ComponentActivity() {
+class AddingPlantQuestion : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -48,11 +46,6 @@ class Adding_Plant_question : ComponentActivity() {
 @Composable
 fun AddingPreview(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val data = result.data
-    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -85,7 +78,7 @@ fun AddingPreview(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    val intent = Intent(context, Adding_Plant_activity::class.java)
+                    val intent = Intent(context, AddingPlantActivity::class.java)
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
