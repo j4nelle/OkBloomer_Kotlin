@@ -71,7 +71,7 @@ class Plant_display : ComponentActivity() {
         var plant_specie = "Unknown"
         var watering_frequency = "Unknown"
         var typo = "Unknown"
-        var photo_path = "Unknowm"
+        var photo_path = "Unknown"
 
 
         // reading the database :
@@ -107,7 +107,8 @@ fun Displaying_info(
 ) {
     var context = LocalContext.current
 
-    val imageUri = if (photo_path.isNotEmpty()) Uri.parse(photo_path) else null
+    val imageUri = if (photo_path.isNotEmpty()) Uri.parse(photo_path)
+    else null
 
     Box(
         modifier = Modifier.fillMaxSize()
