@@ -5,6 +5,7 @@ import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.FeatureInfo
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -22,6 +23,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.collection.objectListOf
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -63,6 +65,15 @@ import androidx.core.content.FileProvider
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 import java.io.File
 import coil.compose.AsyncImage
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.Response
+import org.json.JSONObject
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -141,6 +152,64 @@ class Adding_Plant_activity : ComponentActivity() {
                         e.printStackTrace()
                     }
                 }
+            }
+
+
+            //function needed to send the picture of the plant to PlantNet
+            fun FindSpecieWithPlantNet(context: Context, imageUri : Uri, onResult : (String?)-> Unit){
+                val apikey = "2b10sy6Lu5wZTfeJ9uiZInTNIu"
+                val imagefile = File(imageUri.path?:return)
+
+                val client = OkHttpClient()
+
+                val mediatype = "image/jpeg".toMediaTypeOrNull()
+
+                //building the content of the request to send to the IA
+                val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
+                    .addFormDataPart("organs", "leaf")
+                    .addFormDataPart("image",imagefile.name, imagefile.asRequestBody(mediatype))
+                    .build()
+
+                // building the request itself
+                val request = Request.Builder()
+                    .url("https://my-api.plantnet.org/v2/identify/all?api-key=$apikey")
+                    .post(requestBody)
+                    .build()
+
+                client.newCall(request).enqueue( object :Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        e.printStackTrace()
+                        onResult(null)
+                    }
+
+
+                    override fun onResponse(call: Call, response: Response) {
+                        response.body?.string()?.let { json ->
+
+                            val jsonObject = JSONObject(json)
+                            val resultsArray = jsonObject.getJSONArray("results")
+
+                            if (resultsArray.length() > 0) { //testing if there's a specie that was found
+                                val firstResult = resultsArray.getJSONObject(0)
+                                val species = firstResult.getJSONObject("species")
+                                val scientificName = species.getString("scientificNameWithoutAuthor")
+
+                                onResult(scientificName)//send the scientific name
+
+                            } else {
+                                onResult(null)//when no specie was found
+                            }
+
+                        } ?: onResult(null) // null if there is nothing found
+                    }
+
+                }
+                )
+
+
+
+
+
             }
 
 
@@ -224,6 +293,7 @@ class Adding_Plant_activity : ComponentActivity() {
                     }
 
 
+
                     Button(
                     onClick = {
                         galleryLauncher.launch(arrayOf("image/*")) // This part changed to adapt to the new camera launcher
@@ -251,6 +321,7 @@ class Adding_Plant_activity : ComponentActivity() {
 
 
 
+
                 }
 
 
@@ -262,6 +333,22 @@ class Adding_Plant_activity : ComponentActivity() {
                             plant_specie,
                             watering_frequency,
                             imageUri?.toString() ?: "")
+
+                        // gets the IA recognition of the specie when the picture is taken from the GALLERY
+                        imageUri?.let {
+                            FindSpecieWithPlantNet(context, imageUri!!) { iaSpecie ->
+                                if (iaSpecie != null) {
+                                    Log.d("PlantNet", "Identified specie: $iaSpecie")
+                                    //we need to store this in the database and display it with the rest of the infos
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Plant couldn't be identified",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
                     },
 
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
