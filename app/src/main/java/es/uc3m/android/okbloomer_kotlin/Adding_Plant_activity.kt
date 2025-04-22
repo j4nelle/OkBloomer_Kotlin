@@ -155,19 +155,44 @@ class Adding_Plant_activity : ComponentActivity() {
             }
 
 
+            //function to be able to change Uri into files : files are what we send to the AI
+            // as files cannot be directly created from content:// paths (the ones from the gallery pictures), we need to copy the content into tempFile
+            fun uriToFile(context: Context, uri: Uri):File?{
+                val inputStream = context.contentResolver.openInputStream(uri) ?: return null //gets the input stream of the uri if there is one
+                val tempFile = File.createTempFile("upload_",".jpg", context.cacheDir)
+                tempFile.outputStream().use { output->
+                    inputStream.copyTo(output)
+                }
+                return tempFile
+
+            }
+
+
+
+
+
             //function needed to send the picture of the plant to PlantNet
             fun FindSpecieWithPlantNet(context: Context, imageUri : Uri, onResult : (String?)-> Unit){
                 val apikey = "2b10sy6Lu5wZTfeJ9uiZInTNIu"
-                val imagefile = File(imageUri.path?:return)
+                val imagefile = uriToFile(context, imageUri)
+
+                //bonus lines : we send a message in the logcat in case imageUri is null
+                if (imagefile == null) {
+                    Log.e("PlantNet", "Failed to create file from URI")
+                    onResult(null)
+                    return
+                }
+
 
                 val client = OkHttpClient()
-
                 val mediatype = "image/jpeg".toMediaTypeOrNull()
 
                 //building the content of the request to send to the IA
                 val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart("organs", "leaf")
-                    .addFormDataPart("image",imagefile.name, imagefile.asRequestBody(mediatype))
+                    //.addFormDataPart("organs", "leaf") //recognition of plants according to their leaves
+                    .addFormDataPart("organs", "flower") //recognition if flowers are in the photo
+                    //.addFormDataPart("organs", "fruit") //if fruits are in the photo
+                    .addFormDataPart("images",imagefile.name, imagefile.asRequestBody(mediatype))
                     .build()
 
                 // building the request itself
@@ -178,29 +203,54 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 client.newCall(request).enqueue( object :Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                        e.printStackTrace()
+                        Log.e("PlantNet", "Request to the API failed",e)
                         onResult(null)
                     }
 
 
                     override fun onResponse(call: Call, response: Response) {
-                        response.body?.string()?.let { json ->
+                        val responseBody = response.body?.string()
 
-                            val jsonObject = JSONObject(json)
+                        //Log to see if there's a response from the API
+                        Log.d("PlantNet", "Raw Response: $responseBody")
+
+                        if (!response.isSuccessful) {
+                            //message in the logcat if there is no response (not working)
+                            Log.e("PlantNet", "Request failed with code: ${response.code}")
+                            onResult(null)
+                            return
+                        }
+
+                        if (responseBody == null) {
+                            //message in the logcat if the response exists but is null
+                            Log.e("PlantNet", "Response body is null")
+                            onResult(null)
+                            return
+                        }
+
+                        try {
+                            val jsonObject = JSONObject(responseBody)
                             val resultsArray = jsonObject.getJSONArray("results")
 
-                            if (resultsArray.length() > 0) { //testing if there's a specie that was found
+                            if (resultsArray.length() > 0) {
+                                //if there are results, we need to manage the response from the API in a form we can comprehend
                                 val firstResult = resultsArray.getJSONObject(0)
                                 val species = firstResult.getJSONObject("species")
                                 val scientificName = species.getString("scientificNameWithoutAuthor")
 
-                                onResult(scientificName)//send the scientific name
-
+                                //logcat message to show the scientific name found for the plant
+                                Log.d("PlantNet", "Identified specie: $scientificName")
+                                onResult(scientificName)
                             } else {
-                                onResult(null)//when no specie was found
+                                //if no specie is found
+                                Log.w("PlantNet", "No species found in response")
+                                onResult(null)
                             }
-
-                        } ?: onResult(null) // null if there is nothing found
+                        } catch (e: Exception) {
+                            //If there is a problem formating the answer
+                            Log.e("PlantNet", "Error parsing JSON", e)
+                            onResult(null)
+                        }
                     }
 
                 }
@@ -337,17 +387,20 @@ class Adding_Plant_activity : ComponentActivity() {
                         // gets the IA recognition of the specie when the picture is taken from the GALLERY
                         imageUri?.let {
                             FindSpecieWithPlantNet(context, imageUri!!) { iaSpecie ->
-                                if (iaSpecie != null) {
-                                    Log.d("PlantNet", "Identified specie: $iaSpecie")
-                                    //we need to store this in the database and display it with the rest of the infos
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Plant couldn't be identified",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                runOnUiThread {
+                                    if (iaSpecie != null) {
+                                        Log.d("PlantNet", "Identified specie: $iaSpecie")
+                                        // TO DO : store iaSpecie somewhere
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Plant couldn't be identified",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
+
                         }
                     },
 
