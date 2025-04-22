@@ -20,10 +20,11 @@ class Plant_data(context: Context)
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
             "typo INTEGER,"+
-            "photo_path TEXT)")
+            "photo_path TEXT,"+
+            "plant_specie_IA TEXT)")
     }
 
-    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String) : Long{
+    fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String, plant_specie_IA: String) : Long{
         val db = this.writableDatabase
         //db.execSQL("INSERT INTO ...")
         val contentValues = ContentValues().apply {
@@ -32,10 +33,11 @@ class Plant_data(context: Context)
             put("watering_frequency", watering_frequency)
             put("typo", typo)
             put("photo_path", photo_path)
+            put("plant_specie_IA", plant_specie_IA)
         }
 
         // to see the inserted values
-        Log.d("DB_INSERT", "Inserting: $plant_nickname, $plant_specie, $watering_frequency, $typo, $photo_path")
+        Log.d("DB_INSERT", "Inserting: $plant_nickname, $plant_specie, $watering_frequency, $typo, $photo_path, $plant_specie_IA")
 
         val autonumeric = db.insert("mygarden", null, contentValues)
 
@@ -73,6 +75,33 @@ class Plant_data(context: Context)
             db?.execSQL("ALTER TABLE mygarden ADD COLUMN photo_path TEXT")
             Log.d("DB_UPGRADE", "New column added")
         }
+    }
+
+    //function to add the specie found by IA to the database
+    fun updatePlantSpecieIA(idplant : Int, species: String) {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply{
+            put("plant_specie_IA", species)
+        }
+
+        val RowsAffected = db.update(
+            "mygarden",
+            contentValues,
+            "idplant = ?",
+            arrayOf(idplant.toString())
+        )
+
+
+        db.close()
+
+        //Checking if the update worked in the logcat
+        if(RowsAffected >0){
+            Log.d("Update db", "The row was successfully updated with the IA specie, the ID modified is:$idplant")
+        }
+        else{
+            Log.d("Update db", "No modifications were made in the db for the plant : $idplant")
+        }
+
     }
 
 }

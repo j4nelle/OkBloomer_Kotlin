@@ -92,6 +92,7 @@ class Adding_Plant_activity : ComponentActivity() {
             var watering_frequency by remember { mutableStateOf("") }
             var imageUri by remember { mutableStateOf<Uri?>(null) }
             var photo_path by remember { mutableStateOf("") }
+            var plant_specie_IA by remember { mutableStateOf("") }
 
             //context variable
             var context = LocalContext.current
@@ -237,10 +238,26 @@ class Adding_Plant_activity : ComponentActivity() {
                                 val firstResult = resultsArray.getJSONObject(0)
                                 val species = firstResult.getJSONObject("species")
                                 val scientificName = species.getString("scientificNameWithoutAuthor")
+                                val plantData = Plant_data(context)
 
                                 //logcat message to show the scientific name found for the plant
                                 Log.d("PlantNet", "Identified specie: $scientificName")
+
+                                //making sure the plantId is valid to use for db modification
+                                if(plantID.isNotEmpty()){
+                                    try {
+                                        val id = plantID.toInt()
+                                        plantData.updatePlantSpecieIA(id, scientificName)
+                                    } catch(e:NumberFormatException){
+                                        Log.e("PlantNet", "Invalid plantID$plantID",e)
+                                    }
+                                }
+                                else{
+                                    Log.e("PlantNet", "plantId is empty :(")
+                                }
+
                                 onResult(scientificName)
+
                             } else {
                                 //if no specie is found
                                 Log.w("PlantNet", "No species found in response")
@@ -382,7 +399,8 @@ class Adding_Plant_activity : ComponentActivity() {
                         keep_data(plant_nickname,
                             plant_specie,
                             watering_frequency,
-                            imageUri?.toString() ?: "")
+                            imageUri?.toString() ?: "",
+                            "unrecognised specie")
 
                         // gets the IA recognition of the specie when the picture is taken from the GALLERY
                         imageUri?.let {
@@ -437,9 +455,9 @@ class Adding_Plant_activity : ComponentActivity() {
     }
 
 
-    private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String) {
+    private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String, plant_specie_IA:String) {
         val plant_data = Plant_data(this)
-        val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath)
+        val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath, plant_specie_IA)
 
         Log.d("Photo Path", "Saving photo path: $photoPath")
 
