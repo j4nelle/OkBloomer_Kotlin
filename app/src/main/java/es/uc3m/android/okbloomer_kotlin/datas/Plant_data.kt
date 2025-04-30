@@ -42,9 +42,9 @@ class Plant_data(context: Context)
         val autonumeric = db.insert("mygarden", null, contentValues)
 
         if (autonumeric == -1L) {
-            Log.e("DB_ERROR", "Échec de l'insertion des données")
+            Log.e("DB_ERROR", "failed insertion in the database of the plant: $plant_nickname")
         } else {
-            Log.d("DB_SUCCESS", "Insertion réussie, id: $autonumeric")
+            Log.d("DB_SUCCESS", "Inserted successfully, id: $autonumeric")
         }
         return autonumeric
     }
@@ -71,9 +71,14 @@ class Plant_data(context: Context)
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) {
-            // Add the new column
+
+            //Add new column for plant_specie_IA
+            db?.execSQL("ALTER TABLE mygarden ADD COLUMN plant_specie_IA TEXT")
+            Log.d("DB_UPGRADE", "New column plant_specie_IA well added")
+
+            // Add the new column if photo path
             db?.execSQL("ALTER TABLE mygarden ADD COLUMN photo_path TEXT")
-            Log.d("DB_UPGRADE", "New column added")
+            Log.d("DB_UPGRADE", "New column photo_path well added")
         }
     }
 

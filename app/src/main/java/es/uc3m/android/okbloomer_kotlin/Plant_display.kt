@@ -74,6 +74,7 @@ class Plant_display : ComponentActivity() {
         var watering_frequency = "Unknown"
         var typo = "Unknown"
         var photo_path = "Unknown"
+        var plant_specie_IA = "Unknown"
 
 //
         // reading the database :
@@ -86,13 +87,14 @@ class Plant_display : ComponentActivity() {
             watering_frequency = cursor.getString(cursor.getColumnIndexOrThrow("watering_frequency"))
             typo = cursor.getString(cursor.getColumnIndexOrThrow("typo"))
             photo_path = cursor.getString(cursor.getColumnIndexOrThrow("photo_path"))
+            plant_specie_IA = cursor.getString(cursor.getColumnIndexOrThrow("plant_specie_IA"))
         }
 
         Log.d("Plant Info", "Retrieved photo path: $photo_path")
 
         cursor.close()
         setContent {
-        Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, typo, photo_path)
+        Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, typo, photo_path, plant_specie_IA)
         }
 
     }
@@ -105,7 +107,9 @@ fun Displaying_info(
     plantSpecie: String,
     wateringFrequency: String,
     typo: String,
-    photo_path:String // this parameter is now nullable
+    photo_path:String,
+    plantSpecieIA : String
+
 ) {
     var context = LocalContext.current
 
@@ -128,6 +132,7 @@ fun Displaying_info(
             Text(text = "Nickname : $plantNickname", fontSize = 18.sp)
             Text(text = "Specie : $plantSpecie",fontSize = 18.sp)
             Text(text = "Watering frequency :$wateringFrequency",fontSize = 18.sp)
+            Text(text = "Specie found by IA :$plantSpecieIA",fontSize = 18.sp)
 
             Spacer(modifier = Modifier.height(12.dp))
 

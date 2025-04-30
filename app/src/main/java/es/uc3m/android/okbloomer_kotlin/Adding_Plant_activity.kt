@@ -73,6 +73,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
+import okhttp3.ResponseBody
 import org.json.JSONObject
 import java.io.FileOutputStream
 import java.io.IOException
@@ -96,6 +97,7 @@ class Adding_Plant_activity : ComponentActivity() {
 
             //context variable
             var context = LocalContext.current
+
 
             // variables for launching the camera access
             // camera paths are stored in xml file
@@ -158,22 +160,41 @@ class Adding_Plant_activity : ComponentActivity() {
 
             //function to be able to change Uri into files : files are what we send to the AI
             // as files cannot be directly created from content:// paths (the ones from the gallery pictures), we need to copy the content into tempFile
-            fun uriToFile(context: Context, uri: Uri):File?{
-                val inputStream = context.contentResolver.openInputStream(uri) ?: return null //gets the input stream of the uri if there is one
-                val tempFile = File.createTempFile("upload_",".jpg", context.cacheDir)
-                tempFile.outputStream().use { output->
-                    inputStream.copyTo(output)
-                }
-                return tempFile
+            fun uriToFile(context: Context, uri: Uri): File? {
+                return try {
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    val bitmap = BitmapFactory.decodeStream(inputStream) ?: return null
 
+                    // Create a real JPEG file
+                    val tempFile = File.createTempFile("upload_", ".jpg", context.cacheDir)
+                    val outputStream = FileOutputStream(tempFile)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    outputStream.flush()
+                    outputStream.close()
+
+                    tempFile
+                } catch (e: Exception) {
+                    Log.e("PlantNet", "Error converting URI to JPEG file: ${e.message}")
+                    null
+                }
             }
 
 
 
 
 
+
+
             //function needed to send the picture of the plant to PlantNet
-            fun FindSpecieWithPlantNet(context: Context, imageUri : Uri, onResult : (String?)-> Unit){
+            fun FindSpecieWithPlantNet(
+                context: Context,
+                imageUri : Uri,
+                plantID : Int ,
+                onResult : (String?)-> Unit
+            ) {
+                //sending a message to the logcat to check if the function is actually called
+                Log.d("PlantNet", "FindSpecieWithPlantNet function is being called")
+
                 val apikey = "2b10sy6Lu5wZTfeJ9uiZInTNIu"
                 val imagefile = uriToFile(context, imageUri)
 
@@ -186,14 +207,15 @@ class Adding_Plant_activity : ComponentActivity() {
 
 
                 val client = OkHttpClient()
-                val mediatype = "image/jpeg".toMediaTypeOrNull()
+                val mimeType = context.contentResolver.getType(imageUri) ?: "image/jpeg"
+                val mediaType = mimeType.toMediaTypeOrNull() //to ensure the format of the picture the IA will recieve
 
                 //building the content of the request to send to the IA
                 val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
                     //.addFormDataPart("organs", "leaf") //recognition of plants according to their leaves
                     .addFormDataPart("organs", "flower") //recognition if flowers are in the photo
                     //.addFormDataPart("organs", "fruit") //if fruits are in the photo
-                    .addFormDataPart("images",imagefile.name, imagefile.asRequestBody(mediatype))
+                    .addFormDataPart("images",imagefile.name, imagefile.asRequestBody(mediaType))
                     .build()
 
                 // building the request itself
@@ -202,28 +224,33 @@ class Adding_Plant_activity : ComponentActivity() {
                     .post(requestBody)
                     .build()
 
+                //checking if the request id built correctly before sending it
+                Log.d("PlantNet", "Sending request to PlantNet API with URL: ${request.url}")
+
                 client.newCall(request).enqueue( object :Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                        Log.e("PlantNet", "Request to the API failed",e)
+                        Log.e("PlantNet", "Request to the API failed with error: ${e.message}",e)
+                        e.printStackTrace() // Additional logging for debugging
                         onResult(null)
                     }
 
 
                     override fun onResponse(call: Call, response: Response) {
                         val responseBody = response.body?.string()
+                        val plantData = Plant_data(context) // instantiate Plant_data once
 
                         //Log to see if there's a response from the API
                         Log.d("PlantNet", "Raw Response: $responseBody")
 
                         if (!response.isSuccessful) {
-                            //message in the logcat if there is no response (not working)
+                            // Message if the response failed
                             Log.e("PlantNet", "Request failed with code: ${response.code}")
                             onResult(null)
                             return
                         }
 
                         if (responseBody == null) {
-                            //message in the logcat if the response exists but is null
+                            // Message if response body is null
                             Log.e("PlantNet", "Response body is null")
                             onResult(null)
                             return
@@ -234,41 +261,27 @@ class Adding_Plant_activity : ComponentActivity() {
                             val resultsArray = jsonObject.getJSONArray("results")
 
                             if (resultsArray.length() > 0) {
-                                //if there are results, we need to manage the response from the API in a form we can comprehend
                                 val firstResult = resultsArray.getJSONObject(0)
                                 val species = firstResult.getJSONObject("species")
                                 val scientificName = species.getString("scientificNameWithoutAuthor")
-                                val plantData = Plant_data(context)
 
-                                //logcat message to show the scientific name found for the plant
-                                Log.d("PlantNet", "Identified specie: $scientificName")
+                                Log.d("PlantNet", "Identified species: $scientificName")
 
-                                //making sure the plantId is valid to use for db modification
-                                if(plantID.isNotEmpty()){
-                                    try {
-                                        val id = plantID.toInt()
-                                        plantData.updatePlantSpecieIA(id, scientificName)
-                                    } catch(e:NumberFormatException){
-                                        Log.e("PlantNet", "Invalid plantID$plantID",e)
-                                    }
-                                }
-                                else{
-                                    Log.e("PlantNet", "plantId is empty :(")
-                                }
+                                // 🛠️ Update the plant in database!
+                                plantData.updatePlantSpecieIA(plantID, scientificName)
 
                                 onResult(scientificName)
 
                             } else {
-                                //if no specie is found
                                 Log.w("PlantNet", "No species found in response")
                                 onResult(null)
                             }
                         } catch (e: Exception) {
-                            //If there is a problem formating the answer
                             Log.e("PlantNet", "Error parsing JSON", e)
                             onResult(null)
                         }
                     }
+
 
                 }
                 )
@@ -396,19 +409,26 @@ class Adding_Plant_activity : ComponentActivity() {
 
                 Button(
                     onClick = {
-                        keep_data(plant_nickname,
+                        Log.d("PlantNet", "Add to Garden button clicked")
+                        Log.d("PlantNet", "Checking image before calling FindSpecie function : Image URI: $imageUri")
+                        //FIRST STEP : we add the new plant to the database
+                        val autonumeric = keep_data(
+                            plant_nickname,
                             plant_specie,
                             watering_frequency,
-                            imageUri?.toString() ?: "",
-                            "unrecognised specie")
+                            imageUri?.toString()?:"",
+                            plant_specie_IA ?:"unrecognised specie yet"
+                        )
 
-                        // gets the IA recognition of the specie when the picture is taken from the GALLERY
+
+                        //SECOND STEP : we try to see if the IA can find the specie then update its value in the column plant_specie_IA
+                        //IA recognition when the picture is taken either from the GALLERY or from CAMERA
                         imageUri?.let {
-                            FindSpecieWithPlantNet(context, imageUri!!) { iaSpecie ->
+                            FindSpecieWithPlantNet(context, imageUri!!,  autonumeric.toInt()) { iaSpecie ->
                                 runOnUiThread {
                                     if (iaSpecie != null) {
                                         Log.d("PlantNet", "Identified specie: $iaSpecie")
-                                        // TO DO : store iaSpecie somewhere
+                                        plant_specie_IA = iaSpecie
                                     } else {
                                         Toast.makeText(
                                             context,
@@ -420,6 +440,7 @@ class Adding_Plant_activity : ComponentActivity() {
                             }
 
                         }
+
                     },
 
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
@@ -435,29 +456,24 @@ class Adding_Plant_activity : ComponentActivity() {
         }
     }
 
-    //saving image to internal storage
-    private fun saveImage(bitmap: Bitmap?): File? {
-        val fileName = "gallery_${System.currentTimeMillis()}.jpg"
-        val file = File(applicationContext.filesDir, fileName)
 
-        return try {
-            val outputStream = FileOutputStream(file)
-            if (bitmap != null) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            }
-            outputStream.close()
-            file
-        } catch (e: IOException){
-            e.printStackTrace()
-            null
-        }
+    private fun keep_data(
+        plantNickname: String,
+        plantSpecie: String,
+        wateringFrequency: String,
+        photoPath: String,
+        plant_specie_IA:String
+    ): Long {
 
-    }
-
-
-    private fun keep_data(plantNickname: String, plantSpecie: String, wateringFrequency: String, photoPath: String, plant_specie_IA:String) {
         val plant_data = Plant_data(this)
-        val autonumeric = plant_data.adding_new_plant(plantNickname, plantSpecie, wateringFrequency.toFloat(), -1, photoPath, plant_specie_IA)
+        val autonumeric = plant_data.adding_new_plant(
+            plantNickname,
+            plantSpecie,
+            wateringFrequency.toFloatOrNull()?: 0f,
+            -1,
+            photoPath,
+            plant_specie_IA
+        )
 
         Log.d("Photo Path", "Saving photo path: $photoPath")
 
@@ -472,6 +488,7 @@ class Adding_Plant_activity : ComponentActivity() {
         //making sure we start the garden activity to display the new plants once it's added
         startActivity(Intent(this, MyGarden_activity::class.java ))
 
+        return autonumeric
     }
 
 }
