@@ -63,7 +63,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
     // for displaying image with path
     implementation(libs.coil.compose)
+
+    //for the access to PlantNet API
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("org.json:json:20220320")
 
 }

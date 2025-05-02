@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
 
+    <!--Permissions to access internet : necessary to send requests to the API PlantNet-->
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 
     <application
