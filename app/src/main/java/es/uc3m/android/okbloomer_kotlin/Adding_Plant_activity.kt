@@ -481,6 +481,16 @@ class Adding_Plant_activity : ComponentActivity() {
         //creating a message to make sure the data is saved
         Toast.makeText(this, "id : $autonumeric", Toast.LENGTH_SHORT).show()
 
+        if (autonumeric != -1L) {
+            val context = this
+            scheduleWateringNotification(
+                context,
+                autonumeric.toInt(),
+                plantNickname,
+                wateringFrequency.toFloat()
+            )
+        }
+
         //passing the id of the plant we just added to the activity Plant_display
         val intent = Intent(this, Plant_display::class.java).apply {
             putExtra("idplant", autonumeric.toString())

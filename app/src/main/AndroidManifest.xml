@@ -21,6 +21,7 @@
 
     <!--Permissions to access internet : necessary to send requests to the API PlantNet-->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 
     <application
@@ -72,6 +73,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".WaterReminderReceiver" />
+
     </application>
 
 </manifest>
