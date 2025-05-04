@@ -1,16 +1,20 @@
 package es.uc3m.android.okbloomer_kotlin.datas
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import androidx.compose.foundation.layout.Row
+import es.uc3m.android.okbloomer_kotlin.WaterReminderReceiver
 
 //old version
 
-class Plant_data(context: Context)
+class Plant_data(private val context: Context)
     : SQLiteOpenHelper(context, "myplants.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -48,6 +52,17 @@ class Plant_data(context: Context)
     }
 
     fun deleting_a_plant(idplant : String): Boolean {
+        val intent = Intent(context, WaterReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            idplant.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+
         val db = this.writableDatabase
         val Row_deleted = db.delete("mygarden", "idplant = ?", arrayOf(idplant))
         db.close()
