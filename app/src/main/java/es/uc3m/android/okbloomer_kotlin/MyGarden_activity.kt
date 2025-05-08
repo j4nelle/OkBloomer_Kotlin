@@ -1,5 +1,6 @@
 package es.uc3m.android.okbloomer_kotlin
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
@@ -16,6 +17,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,15 +54,19 @@ import es.uc3m.android.okbloomer_kotlin.GreetingPreview
 import es.uc3m.android.okbloomer_kotlin.R
 import es.uc3m.android.okbloomer_kotlin.datas.Plant_data
 import es.uc3m.android.okbloomer_kotlin.ui.theme.OkBloomer_KotlinTheme
+import es.uc3m.android.okbloomer_kotlin.MainActivity
+import es.uc3m.android.okbloomer_kotlin.Plant_display
+
 
 //old code version
 class MyGarden_activity : ComponentActivity() {
+    private val plantList = mutableStateListOf<HashMap<String, String>>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val context = this
-            val plantList = remember { mutableStateListOf<HashMap<String,String>>() }
 
             // Load data whenComposable is created
             LaunchedEffect(Unit) {
@@ -72,6 +78,15 @@ class MyGarden_activity : ComponentActivity() {
                 Displayingplants(plantList)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Force recomposition by re-fetching plant data
+        val data = readData(this)
+        plantList.clear()
+        plantList.addAll(data)
+
     }
 }
 //
@@ -88,7 +103,9 @@ fun readData(context : Context): List<HashMap<String,String>>{
                 "plant_nickname" to cursor.getString(cursor.getColumnIndexOrThrow("plant_nickname")),
                 "plant_specie" to cursor.getString(cursor.getColumnIndexOrThrow("plant_specie")),
                 "watering_frequency" to cursor.getString(cursor.getColumnIndexOrThrow("watering_frequency")),
-                "typo" to cursor.getString(cursor.getColumnIndexOrThrow("typo"))
+                "typo" to cursor.getString(cursor.getColumnIndexOrThrow("typo")),
+                "photo_path" to cursor.getString(cursor.getColumnIndexOrThrow("photo_path")),
+                "last_watered" to cursor.getString(cursor.getColumnIndexOrThrow("last_watered"))
             )
             plantList.add(map)
         } while (cursor.moveToNext())
@@ -98,13 +115,10 @@ fun readData(context : Context): List<HashMap<String,String>>{
 }
 
 @Composable
+
 fun Displayingplants(plantList: List<HashMap<String, String>>){
     //function that display the plants in the garden
-
-    //changing the color values
-    val green = Color(0xFF810C784)
-    val red = Color(0xD9EF5350)
-
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -118,11 +132,27 @@ fun Displayingplants(plantList: List<HashMap<String, String>>){
         LazyColumn (
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(bottom = 80.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(plantList){ plant -> PlantItem(plant)
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(60.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            //home button
+            Button(onClick = {
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                context.startActivity(intent)
+            }) {
+                Text("Home")
             }
         }
     }
@@ -138,11 +168,21 @@ fun PlantItem(plant: HashMap<String, String>) {
     val plant_nickname = plant["plant_nickname"]
     val plant_specie = plant["plant_specie"]
     val watering_frequency = plant["watering_frequency"]
+    val last_watered = plant["last_watered"]
     val typo = plant["typo"]
     val photo_path = plant["photo_path"]
 
     //converting back the string photo_path as a Uri
     val imageUri = if (!photo_path.isNullOrEmpty()) Uri.parse(photo_path) else null
+
+    // Convert strings to use for overdue
+    val lastWateredMillis = last_watered?.toLongOrNull() ?: 0L
+    val frequencyDays = watering_frequency?.toFloatOrNull() ?: 0f
+
+    // Check if plant is overdue for watering
+    val isOverdue = needsWater(lastWateredMillis, frequencyDays)
+    val buttonText = if (isOverdue) "Needs Watering" else "Watered"
+    val buttonColor = if (isOverdue) Color(0xD9EF5350) else Color(0xFF810C784)
 
     Column (modifier = Modifier
         .fillMaxWidth()
@@ -153,16 +193,16 @@ fun PlantItem(plant: HashMap<String, String>) {
         Button(onClick = {
             val intent = Intent(context, Plant_display::class.java).apply {
                 putExtra( "idplant", plantID ?:-1) // -1 in case idplant is null
-                putExtra(plant.get("plant_nickname"), plant_nickname)
-                putExtra(plant.get("plant_specie"), plant_specie)
-                putExtra(plant.get("watering_frequency"), watering_frequency)
-                putExtra(plant.get("typo"), typo)
-                putExtra(plant.get("photo_path"), photo_path)
+                putExtra("plant_nickname", plant_nickname)
+                putExtra("plant_specie", plant_specie)
+                putExtra("watering_frequency", watering_frequency)
+                putExtra("last_watered", last_watered)
+                putExtra("typo", typo)
+                putExtra("photo_path", photo_path)
             }
             context.startActivity(intent)
-            }
-            ,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             modifier = Modifier
                 .fillMaxWidth(0.7f)
                 .height(56.dp)
@@ -173,4 +213,31 @@ fun PlantItem(plant: HashMap<String, String>) {
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun MyGardenPreview() {
+    val mockPlants = listOf(
+        hashMapOf(
+            "idplant" to "1",
+            "plant_nickname" to "test",
+            "plant_specie" to "test",
+            "watering_frequency" to "1",
+            "last_watered" to System.currentTimeMillis().toString(),
+            "typo" to "0",
+            "photo_path" to ""
+        ),
+        hashMapOf(
+            "idplant" to "2",
+            "plant_nickname" to "test1",
+            "plant_specie" to "test1",
+            "watering_frequency" to "2",
+            "last_watered" to System.currentTimeMillis().toString(),
+            "typo" to "0",
+            "photo_path" to ""
+        )
+    )
+
+    Displayingplants(plantList = mockPlants)
+}
+
 

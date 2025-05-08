@@ -15,7 +15,7 @@ import es.uc3m.android.okbloomer_kotlin.WaterReminderReceiver
 //old version
 
 class Plant_data(private val context: Context)
-    : SQLiteOpenHelper(context, "myplants.db", null, 2) {
+    : SQLiteOpenHelper(context, "myplants.db", null, 3) {
 
     override fun onCreate(db: SQLiteDatabase) {
     db.execSQL("CREATE TABLE mygarden("+
@@ -23,18 +23,24 @@ class Plant_data(private val context: Context)
                 "plant_nickname TEXT,"+
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
-            "typo INTEGER,"+
-            "photo_path TEXT,"+
+                //for button color change, keeps track of last watering date
+                "last_watered INTEGER,"+
+                "typo INTEGER,"+
+                "photo_path TEXT,"+
             "plant_specie_IA TEXT)")
     }
 
     fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String, plant_specie_IA: String) : Long{
         val db = this.writableDatabase
         //db.execSQL("INSERT INTO ...")
+
+        val currentTime = System.currentTimeMillis()
+
         val contentValues = ContentValues().apply {
             put("plant_nickname",plant_nickname)
             put("plant_specie", plant_specie)
             put("watering_frequency", watering_frequency)
+            put("last_watered", currentTime)
             put("typo", typo)
             put("photo_path", photo_path)
             put("plant_specie_IA", plant_specie_IA)
@@ -51,6 +57,24 @@ class Plant_data(private val context: Context)
             Log.d("DB_SUCCESS", "Inserted successfully, id: $autonumeric")
         }
         return autonumeric
+    }
+
+    //to update the last watered date
+    fun plant_watered(plantID: String): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put("last_watered", System.currentTimeMillis())
+        }
+
+        val rowsUpdated = db.update(
+            "mygarden",
+            contentValues,
+            "idplant = ?",
+            arrayOf(plantID)
+        )
+
+        db.close()
+        return rowsUpdated > 0
     }
 
     fun deleting_a_plant(idplant : String): Boolean {
@@ -93,8 +117,13 @@ class Plant_data(private val context: Context)
 
             // Add the new column if photo path
             db?.execSQL("ALTER TABLE mygarden ADD COLUMN photo_path TEXT")
-            Log.d("DB_UPGRADE", "New column photo_path well added")
+            Log.d("DB_UPGRADE", "New column added")
+            if (oldVersion < 3) {
+                db?.execSQL("ALTER TABLE mygarden ADD COLUMN last_watered INTEGER")
+                Log.d("DB_UPGRADE", "Added column: last_watered")
+            }
         }
+
     }
 
     //function to add the specie found by IA to the database
@@ -123,5 +152,6 @@ class Plant_data(private val context: Context)
         }
 
     }
+
 
 }
