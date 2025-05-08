@@ -20,9 +20,8 @@ fun scheduleWateringNotification(context: Context, plantId: Int, nickname: Strin
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    //val triggerTime = System.currentTimeMillis() + (frequencyInDays * 24 * 60 * 60 * 1000).toLong()
-    //Ying- test with less time
-    val triggerTime = System.currentTimeMillis() + (frequencyInDays * 1000).toLong()
+    val triggerTime = System.currentTimeMillis() + (frequencyInDays * 24 * 60 * 60 * 1000).toLong() // if the user enters the watering frequency in days
+    //val triggerTime = System.currentTimeMillis() + (frequencyInDays * 1000).toLong() //if the user enters the watering frequency in seconds
 
 
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

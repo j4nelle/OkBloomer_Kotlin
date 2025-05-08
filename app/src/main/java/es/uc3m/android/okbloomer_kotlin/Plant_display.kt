@@ -99,7 +99,7 @@ class Plant_display : ComponentActivity() {
 
         cursor.close()
         setContent {
-        Displaying_info(plantID.toString(), plant_nickname, plant_specie, last_watered, watering_frequency, typo, photo_path,plant_specie_IA )
+        Displaying_info(plantID.toString(), plant_nickname, plant_specie, watering_frequency, last_watered, typo, photo_path,plant_specie_IA )
         }
 
     }
