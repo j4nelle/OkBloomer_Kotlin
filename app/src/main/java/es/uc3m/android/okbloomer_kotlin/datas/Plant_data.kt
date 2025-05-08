@@ -1,17 +1,21 @@
 package es.uc3m.android.okbloomer_kotlin.datas
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import androidx.compose.foundation.layout.Row
+import es.uc3m.android.okbloomer_kotlin.WaterReminderReceiver
 
 //old version
 
-class Plant_data(context: Context)
-    : SQLiteOpenHelper(context, "myplants.db", null, 2) {
+class Plant_data(private val context: Context)
+    : SQLiteOpenHelper(context, "myplants.db", null, 3) {
 
     override fun onCreate(db: SQLiteDatabase) {
     db.execSQL("CREATE TABLE mygarden("+
@@ -19,18 +23,24 @@ class Plant_data(context: Context)
                 "plant_nickname TEXT,"+
                 "plant_specie TEXT,"+
                 "watering_frequency FLOAT,"+
-            "typo INTEGER,"+
-            "photo_path TEXT,"+
+                //for button color change, keeps track of last watering date
+                "last_watered INTEGER,"+
+                "typo INTEGER,"+
+                "photo_path TEXT,"+
             "plant_specie_IA TEXT)")
     }
 
     fun adding_new_plant(plant_nickname : String, plant_specie: String, watering_frequency : Float, typo : Int, photo_path : String, plant_specie_IA: String) : Long{
         val db = this.writableDatabase
         //db.execSQL("INSERT INTO ...")
+
+        val currentTime = System.currentTimeMillis()
+
         val contentValues = ContentValues().apply {
             put("plant_nickname",plant_nickname)
             put("plant_specie", plant_specie)
             put("watering_frequency", watering_frequency)
+            put("last_watered", currentTime)
             put("typo", typo)
             put("photo_path", photo_path)
             put("plant_specie_IA", plant_specie_IA)
@@ -49,7 +59,36 @@ class Plant_data(context: Context)
         return autonumeric
     }
 
+    //to update the last watered date
+    fun plant_watered(plantID: String): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put("last_watered", System.currentTimeMillis())
+        }
+
+        val rowsUpdated = db.update(
+            "mygarden",
+            contentValues,
+            "idplant = ?",
+            arrayOf(plantID)
+        )
+
+        db.close()
+        return rowsUpdated > 0
+    }
+
     fun deleting_a_plant(idplant : String): Boolean {
+        val intent = Intent(context, WaterReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            idplant.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+
         val db = this.writableDatabase
         val Row_deleted = db.delete("mygarden", "idplant = ?", arrayOf(idplant))
         db.close()
@@ -78,8 +117,13 @@ class Plant_data(context: Context)
 
             // Add the new column if photo path
             db?.execSQL("ALTER TABLE mygarden ADD COLUMN photo_path TEXT")
-            Log.d("DB_UPGRADE", "New column photo_path well added")
+            Log.d("DB_UPGRADE", "New column added")
+            if (oldVersion < 3) {
+                db?.execSQL("ALTER TABLE mygarden ADD COLUMN last_watered INTEGER")
+                Log.d("DB_UPGRADE", "Added column: last_watered")
+            }
         }
+
     }
 
     //function to add the specie found by IA to the database
@@ -108,5 +152,6 @@ class Plant_data(context: Context)
         }
 
     }
+
 
 }
