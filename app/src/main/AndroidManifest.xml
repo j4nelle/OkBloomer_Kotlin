@@ -61,6 +61,10 @@
         <activity
             android:name=".MyGarden_activity"
             android:exported="false" />
+        <activity
+            android:name=".Find_Plant_activity"
+            android:exported="false" />
+
 
 
         <activity
