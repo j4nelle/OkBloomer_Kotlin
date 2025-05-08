@@ -1,14 +1,13 @@
 package es.uc3m.android.okbloomer_kotlin
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import es.uc3m.android.okbloomer_kotlin.WaterReminderReceiver
 
+@SuppressLint("ScheduleExactAlarm")
 fun scheduleWateringNotification(context: Context, plantId: Int, nickname: String, frequencyInDays: Float) {
     val intent = Intent(context, WaterReminderReceiver::class.java).apply {
         putExtra("nickname", nickname)
@@ -21,15 +20,18 @@ fun scheduleWateringNotification(context: Context, plantId: Int, nickname: Strin
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val triggerTime = System.currentTimeMillis() + (frequencyInDays * 24 * 60 * 60 * 1000).toLong()
+    //val triggerTime = System.currentTimeMillis() + (frequencyInDays * 24 * 60 * 60 * 1000).toLong()
+    //Ying- test with less time
+    val triggerTime = System.currentTimeMillis() + (frequencyInDays * 1000).toLong()
+
 
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    alarmManager.setRepeating(
+    alarmManager.setExactAndAllowWhileIdle(
         AlarmManager.RTC_WAKEUP,
         triggerTime,
-        (frequencyInDays * 24 * 60 * 60 * 1000).toLong(),
         pendingIntent
     )
 
     Log.d("NOTIF", "Scheduled notification for $nickname in $frequencyInDays days (triggerTime=$triggerTime)")
+    Log.d("NOTIF_DEBUG", "Notification fired for plant: $nickname at ${System.currentTimeMillis()}")
 }

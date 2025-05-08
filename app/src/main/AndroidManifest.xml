@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Alarm -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <!-- Camera permission (required to use the camera) -->
     <uses-feature
         android:name="android.hardware.camera"
@@ -72,7 +75,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".WaterReminderReceiver" />
+        <receiver android:name=".WaterReminderReceiver" android:exported="false"/>
 
     </application>
 
