@@ -178,12 +178,30 @@ fun Displaying_info(
                         .clip(RoundedCornerShape(12.dp)),
 
                     ) {
-                    Text(text = "Watered", fontSize = 18.sp) //"Watered" or "Needs to be watered" according to the watering frequency
+                    Text(text = buttonText, fontSize = 18.sp)
                 }
             }
         }
-
         Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            //back button
+            Button(onClick = { (context as? Activity)?.finish() }) {
+                Text("Back")
+            }
+            //home button
+            Button(onClick = {
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                context.startActivity(intent)
+            }) {
+                Text("Home")
+            }
+        }
     }
 }
 
