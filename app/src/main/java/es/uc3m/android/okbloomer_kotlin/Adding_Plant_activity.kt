@@ -224,7 +224,7 @@ class Adding_Plant_activity : ComponentActivity() {
                     .post(requestBody)
                     .build()
 
-                //checking if the request id built correctly before sending it
+
                 Log.d("PlantNet", "Sending request to PlantNet API with URL: ${request.url}")
 
                 client.newCall(request).enqueue( object :Callback {
@@ -267,7 +267,7 @@ class Adding_Plant_activity : ComponentActivity() {
 
                                 Log.d("PlantNet", "Identified species: $scientificName")
 
-                                // 🛠️ Update the plant in database!
+                                // Update the plant in database!
                                 plantData.updatePlantSpecieIA(plantID, scientificName)
 
                                 onResult(scientificName)
