@@ -183,6 +183,7 @@ fun Displaying_info(
             }
         }
 
+        Row(
     }
 }
 
@@ -206,4 +207,16 @@ fun delete_data(plantID: String, context: Context) {
         Toast.makeText(context, "deletion failed", Toast.LENGTH_SHORT).show()
     }
 }
-
+@Preview(showBackground = true)
+@Composable
+fun DisplayingInfoPreview() {
+    Displaying_info(
+        plantID = "1",
+        plantNickname = "Test",
+        plantSpecie = "Test",
+        wateringFrequency = "2",
+        lastWatered = System.currentTimeMillis().toString(),
+        typo = "0",
+        photo_path = "" // leave blank for preview or add a test URI string
+    )
+}

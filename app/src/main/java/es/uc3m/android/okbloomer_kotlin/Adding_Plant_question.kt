@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -77,8 +78,10 @@ fun AddingPreview(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Button(
-            onClick = {/*make the link to google maps or another gps service (going directly to MAPS ?)*/
-        },
+            onClick = {
+                val intent = Intent(context, Find_Plant_activity::class.java)
+                context.startActivity(intent)
+            },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
         modifier = Modifier
             .fillMaxWidth(0.7f)
@@ -105,6 +108,22 @@ fun AddingPreview(modifier: Modifier = Modifier) {
         Text("I already have a new plant", fontSize = 18.sp)
         }
     }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(60.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            //home button
+            Button(onClick = {
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                context.startActivity(intent)
+            }) {
+                Text("Home")
+            }
+        }
 }
 }
 

@@ -125,6 +125,22 @@ fun Displayingplants(plantList: List<HashMap<String, String>>){
             items(plantList){ plant -> PlantItem(plant)
             }
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(60.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            //home button
+            Button(onClick = {
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                context.startActivity(intent)
+            }) {
+                Text("Home")
+            }
+        }
     }
 }
 
@@ -173,4 +189,31 @@ fun PlantItem(plant: HashMap<String, String>) {
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun MyGardenPreview() {
+    val mockPlants = listOf(
+        hashMapOf(
+            "idplant" to "1",
+            "plant_nickname" to "test",
+            "plant_specie" to "test",
+            "watering_frequency" to "1",
+            "last_watered" to System.currentTimeMillis().toString(),
+            "typo" to "0",
+            "photo_path" to ""
+        ),
+        hashMapOf(
+            "idplant" to "2",
+            "plant_nickname" to "test1",
+            "plant_specie" to "test1",
+            "watering_frequency" to "2",
+            "last_watered" to System.currentTimeMillis().toString(),
+            "typo" to "0",
+            "photo_path" to ""
+        )
+    )
+
+    Displayingplants(plantList = mockPlants)
+}
+
 

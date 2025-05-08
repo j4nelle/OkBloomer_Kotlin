@@ -24,12 +24,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -142,137 +144,152 @@ class Adding_Plant_activity : ComponentActivity() {
                     }
                 }
             }
-
-
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            )
-            {
-                //putting a title on top of the activity
-                Text(fontSize = 22.sp, text = "Describe your new plant :", color = Color.Blue)
-
-                //add space between elements
-                Spacer(modifier = Modifier.size(12.dp))
-
-                //creating a TextField for each variable
-                TextField(value = plant_nickname,
-                    label = ({ Text("Enter your plant's nickname") }),
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = {
-                        plant_nickname = it
-                    })
-
-                Spacer(modifier = Modifier.size(12.dp))
-
-                TextField(
-                    value = plant_specie,
-                    onValueChange = { plant_specie = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = ({ Text("Enter your plant's specie") })
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 )
+                {
+                    //putting a title on top of the activity
+                    Text(fontSize = 22.sp, text = "Describe your new plant :", color = Color.Blue)
 
-                Spacer(modifier = Modifier.size(12.dp))
+                    //add space between elements
+                    Spacer(modifier = Modifier.size(12.dp))
 
-                TextField(
-                    value = watering_frequency,
-                    onValueChange = { watering_frequency = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "What is the watering frequency ?") }
-                )
+                    //creating a TextField for each variable
+                    TextField(value = plant_nickname,
+                        label = ({ Text("Enter your plant's nickname") }),
+                        modifier = Modifier.fillMaxWidth(),
+                        onValueChange = {
+                            plant_nickname = it
+                        })
 
-                Spacer(modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.size(12.dp))
 
-                Row {
+                    TextField(
+                        value = plant_specie,
+                        onValueChange = { plant_specie = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = ({ Text("Enter your plant's specie") })
+                    )
+
+                    Spacer(modifier = Modifier.size(12.dp))
+
+                    TextField(
+                        value = watering_frequency,
+                        onValueChange = { watering_frequency = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "What is the watering frequency ?") }
+                    )
+
+                    Spacer(modifier = Modifier.size(12.dp))
+
+                    Row {
+                        Button(
+                            onClick = {
+                                //launches the access to camera
+                                if (ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.CAMERA
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    cameraLauncher.launch(uriForFile)
+                                    Log.d("Photo Path", "Captured image URI: $uriForFile")
+
+                                    //updating the value of the path AS A STRING
+                                    photo_path = uriForFile.toString()
+                                } else {
+                                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f)
+                                .height(56.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        ) {
+                            Text(text = "Take a picture", fontSize = 16.sp)
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        //displaying the image once you took it from camera
+                        imageUri?.let { uri ->
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = "Plant Image",
+                                modifier = Modifier.size(250.dp)
+                            )
+                        }
+
+
+                        Button(
+                            onClick = {
+                                galleryLauncher.launch(arrayOf("image/*")) // This part changed to adapt to the new camera launcher
+
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .height(56.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        ) {
+                            Text(text = "From gallery", fontSize = 16.sp)
+                        }
+                        Spacer(modifier = Modifier.height(65.dp))
+
+                        //displaying the image once you chose it from gallery
+                        imageUri?.let { uri ->
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = "Selected Image",
+                                modifier = Modifier.size(250.dp)
+                            )
+                        }
+
+                    }
+
                     Button(
                         onClick = {
-                            //launches the access to camera
-                            if (ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.CAMERA
-                                ) == PackageManager.PERMISSION_GRANTED
-                            ) {
-                                cameraLauncher.launch(uriForFile)
-                                Log.d("Photo Path", "Captured image URI: $uriForFile")
-
-                                //updating the value of the path AS A STRING
-                                photo_path = uriForFile.toString()
-                            } else {
-                                permissionLauncher.launch(Manifest.permission.CAMERA)
-                            }
+                            keep_data(
+                                plant_nickname,
+                                plant_specie,
+                                watering_frequency,
+                                imageUri?.toString() ?: ""
+                            )
                         },
+
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                         modifier = Modifier
-                            .fillMaxWidth(0.5f)
+                            .fillMaxWidth(0.7f)
                             .height(56.dp)
                             .clip(RoundedCornerShape(12.dp))
+
                     ) {
-                        Text(text = "Take a picture", fontSize = 16.sp)
+                        Text("Add to Garden")
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //displaying the image once you took it from camera
-                    imageUri?.let { uri ->
-                        AsyncImage(
-                            model = uri,
-                            contentDescription = "Plant Image",
-                            modifier = Modifier.size(250.dp)
-                        )
-                    }
-
-
-                    Button(
-                    onClick = {
-                        galleryLauncher.launch(arrayOf("image/*")) // This part changed to adapt to the new camera launcher
-
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    Text(text = "From gallery", fontSize = 16.sp)
                 }
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //displaying the image once you chose it from gallery
-                    imageUri?.let { uri ->
-                        AsyncImage(
-                            model = uri,
-                            contentDescription = "Selected Image",
-                            modifier = Modifier.size(250.dp)
-                        )
-                    }
-
-
-
-
-                }
-
-
-
-
-                Button(
-                    onClick = {
-                        keep_data(plant_nickname,
-                            plant_specie,
-                            watering_frequency,
-                            imageUri?.toString() ?: "")
-                    },
-
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(0.7f)
-                        .height(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(60.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text("Add to Garden")
+                    // Back button
+                    Button(onClick = { (context as? Activity)?.finish() }) {
+                        Text("Back")
                     }
+                    //home button
+                    Button(onClick = {
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        context.startActivity(intent)
+                    }) {
+                        Text("Home")
+                    }
+                }
             }
         }
     }
@@ -313,7 +330,7 @@ class Adding_Plant_activity : ComponentActivity() {
                 context,
                 autonumeric.toInt(),
                 plantNickname,
-                wateringFrequency.toFloat()
+                wateringFrequency.toFloat(),
             )
         }
 

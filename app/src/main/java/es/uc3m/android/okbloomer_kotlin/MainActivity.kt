@@ -82,7 +82,7 @@ fun GreetingPreview(modifier: Modifier = Modifier) {
             Text(
                 text = "Welcome Back!",
                 fontSize = 24.sp,
-                color = Color.White
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(16.dp))
