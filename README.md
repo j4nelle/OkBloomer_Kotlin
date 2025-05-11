@@ -23,9 +23,9 @@ Notifications, change the color of the plant's button when it's time to water it
 **Android sdk** >= 30. The application was coded using Jetpack Compose in Kotlin
 
 ## Autors : 
-@j4nelle
-@palomanunezg
-@yingorr
+Janelle Poussou : @j4nelle
+Paloma Nunez Guerrero : @palomanunezg
+Ying Zhai Orr : @yingorr
 
 ## Credits : 
 The original idea of the app was coded in Java in Android Studio. The team members for the first version of this project are Timothé Ioos, Vital de Nodrest, Maria Artsruni and Janelle Poussou. We thank our professors for the support during the development. 
